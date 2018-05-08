@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace blugin\chunkloader;
 
+use pocketmine\level\Level;
 use pocketmine\plugin\PluginBase;
 use blugin\chunkloader\lang\PluginLang;
 use blugin\chunkloader\command\PoolCommand;
@@ -40,6 +41,21 @@ class ChunkLoader extends PluginBase{
         }
         $this->language = new PluginLang($this);
         $this->reloadConfig();
+
+        /** @var int[][] $configData */
+        $configData = $this->getConfig()->getAll();
+        foreach ($configData as $worldName => $chunks) {
+            $level = $this->getServer()->getLevelByName($worldName);
+            if ($level === null) {
+                $this->getLogger()->error("{$worldName} is invalid world name");
+            } else {
+                foreach ($chunks as $key => $chunkHash) {
+                    Level::getXZ($chunkHash, $chunkX, $chunkZ);
+                    $level->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
+                }
+            }
+        }
+
 
         if ($this->command == null) {
             $this->command = new PoolCommand($this, 'chunkloader');
