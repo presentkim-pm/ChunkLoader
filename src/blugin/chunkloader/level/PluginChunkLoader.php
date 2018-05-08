@@ -18,7 +18,7 @@ class PluginChunkLoader extends Position implements PMChunkLoader{
     protected $plugin;
 
     /** @var int */
-    protected $loaderId;
+    protected $loaderId = 0;
 
     /**
      * PluginChunkLoader constructor.
