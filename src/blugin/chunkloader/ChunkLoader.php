@@ -96,7 +96,7 @@ class ChunkLoader extends PluginBase{
             return false;
         } else {
             $chunks[] = $chunkHash;
-            $config->set($worldName, $chunks);
+            $config->set($worldName, array_values($chunks));
 
             $level->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
             return true;
@@ -124,7 +124,7 @@ class ChunkLoader extends PluginBase{
             if (count($chunks) === 0) {
                 $config->remove($worldName);
             } else {
-                $config->set($worldName, $chunks);
+                $config->set($worldName, array_values($chunks));
             }
 
             $level->unregisterChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
