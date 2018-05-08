@@ -6,6 +6,7 @@ namespace blugin\chunkloader;
 
 use pocketmine\plugin\PluginBase;
 use blugin\chunkloader\lang\PluginLang;
+use blugin\chunkloader\level\PluginChunkLoader;
 
 class ChunkLoader extends PluginBase{
 
@@ -20,8 +21,12 @@ class ChunkLoader extends PluginBase{
     /** @var PluginLang */
     private $language;
 
+    /** @var PluginChunkLoader */
+    private $chunkLoader;
+
     public function onLoad() : void{
         self::$instance = $this;
+        $this->chunkLoader = new PluginChunkLoader($this);
     }
 
     public function onEnable() : void{
