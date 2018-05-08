@@ -8,6 +8,7 @@ use pocketmine\{
   Server, Player
 };
 use pocketmine\command\CommandSender;
+use pocketmine\level\format\Chunk;
 use blugin\chunkloader\command\{
   PoolCommand, SubCommand
 };
@@ -36,7 +37,8 @@ class ListSubcommand extends SubCommand{
         } else {
             return false;
         }
-        $list = $level->getChunks();
+        /** @var Chunk[] $list */
+        $list = array_values($level->getChunks());
         $max = ceil(count($list) / 5);
         $page = 0;
         if (isset($args[1]) && is_numeric($args[1])) {
