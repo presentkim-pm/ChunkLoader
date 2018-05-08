@@ -43,7 +43,7 @@ class ChunkLoader extends PluginBase{
         $this->language = new PluginLang($this);
         $this->reloadConfig();
 
-        /** @var int[][] $configData */
+        /** @var string[][] $configData */
         $configData = $this->getConfig()->getAll();
         foreach ($configData as $worldName => $chunks) {
             $level = $this->getServer()->getLevelByName($worldName);
@@ -51,7 +51,7 @@ class ChunkLoader extends PluginBase{
                 $this->getLogger()->error("{$worldName} is invalid world name");
             } else {
                 foreach ($chunks as $key => $chunkHash) {
-                    Level::getXZ($chunkHash, $chunkX, $chunkZ);
+                    Level::getXZ((int) $chunkHash, $chunkX, $chunkZ);
                     $level->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
                 }
             }
@@ -85,7 +85,7 @@ class ChunkLoader extends PluginBase{
     public function registerChunk(int $chunkX, int $chunkZ, Level $level) : bool{
         $config = $this->getConfig();
 
-        $chunkHash = Level::chunkHash($chunkX, $chunkZ);
+        $chunkHash = (string) Level::chunkHash($chunkX, $chunkZ);
         /** @var string[] $chunks */
         $chunks = $config->get($worldName = $level->getFolderName(), []);
         if (in_array($chunkHash, $chunks)) {
@@ -109,7 +109,7 @@ class ChunkLoader extends PluginBase{
     public function unregisterChunk(int $chunkX, int $chunkZ, Level $level) : bool{
         $config = $this->getConfig();
 
-        $chunkHash = Level::chunkHash($chunkX, $chunkZ);
+        $chunkHash = (string) Level::chunkHash($chunkX, $chunkZ);
         /** @var string[] $chunkLoaders */
         $chunks = $config->get($worldName = $level->getFolderName());
         if ($chunks === false) {
