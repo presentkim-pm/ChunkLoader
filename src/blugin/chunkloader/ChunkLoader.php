@@ -6,6 +6,7 @@ namespace blugin\chunkloader;
 
 use pocketmine\plugin\PluginBase;
 use blugin\chunkloader\lang\PluginLang;
+use blugin\chunkloader\command\PoolCommand;
 use blugin\chunkloader\level\PluginChunkLoader;
 
 class ChunkLoader extends PluginBase{
@@ -17,6 +18,9 @@ class ChunkLoader extends PluginBase{
     public static function getInstance() : ChunkLoader{
         return self::$instance;
     }
+
+    /** @var PoolCommand */
+    private $command;
 
     /** @var PluginLang */
     private $language;
@@ -36,6 +40,14 @@ class ChunkLoader extends PluginBase{
         }
         $this->language = new PluginLang($this);
         $this->reloadConfig();
+
+        if ($this->command == null) {
+            $this->command = new PoolCommand($this, 'chunkloader');
+        }
+        if ($this->command->isRegistered()) {
+            $this->getServer()->getCommandMap()->unregister($this->command);
+        }
+        $this->getServer()->getCommandMap()->register(strtolower($this->getName()), $this->command);
     }
 
     public function onDisable() : void{
@@ -44,6 +56,15 @@ class ChunkLoader extends PluginBase{
             mkdir($dataFolder, 0777, true);
         }
         $this->saveConfig();
+    }
+
+    /**
+     * @param string $name = ''
+     *
+     * @return PoolCommand
+     */
+    public function getCommand(string $name = '') : PoolCommand{
+        return $this->command;
     }
 
     /**
