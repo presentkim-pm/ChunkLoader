@@ -62,8 +62,9 @@ class RegisterSubcommand extends SubCommand{
         }
         if (!$level->isChunkGenerated($chunkX, $chunkZ)) {
             $sender->sendMessage($this->translate('failure.notGenerated', (string) $chunkX, (string) $chunkZ, $level->getFolderName()));
+        } elseif (!$this->plugin->registerChunk($chunkX, $chunkZ, $level)) {
+            $sender->sendMessage($this->translate('failure.already', (string) $chunkX, (string) $chunkZ, $level->getFolderName()));
         } else {
-            $this->plugin->registerChunk($chunkX, $chunkZ, $level);
             $sender->sendMessage($this->translate('success', (string) $chunkX, (string) $chunkZ, $level->getFolderName()));
         }
         return true;
