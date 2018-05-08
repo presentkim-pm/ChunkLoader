@@ -20,6 +20,11 @@ class PluginChunkLoader extends Position implements PMChunkLoader{
     /** @var int */
     protected $loaderId;
 
+    /**
+     * PluginChunkLoader constructor.
+     *
+     * @param ChunkLoader $plugin
+     */
     public function __construct(ChunkLoader $plugin){
         parent::__construct();
         $this->plugin = $plugin;
@@ -28,7 +33,6 @@ class PluginChunkLoader extends Position implements PMChunkLoader{
 
     /**
      * Returns the ChunkLoader id.
-     * Call Level::generateChunkLoaderId($this) to generate and save it
      *
      * @return int
      */
