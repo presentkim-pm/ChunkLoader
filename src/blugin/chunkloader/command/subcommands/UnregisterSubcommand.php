@@ -45,7 +45,7 @@ class UnregisterSubcommand extends SubCommand{
                 $chunkZ = (int) $args[1];
             }
         } elseif ($sender instanceof Player) {
-            $chunkZ = $sender->x >> 4;
+            $chunkZ = $sender->z >> 4;
         } else {
             return false;
         }
