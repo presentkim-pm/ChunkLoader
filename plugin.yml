@@ -1,0 +1,9 @@
+---
+name:                      ChunkLoader
+main:                      blugin\chunkloader\ChunkLoader
+version:                   1.0.0
+api:                       [3.0.0-ALPHA12]
+author:                    PresentKim
+website:                   https://github.com/Blugin/ChunkLoader-PMMP
+description:               A plugin add chunk loader
+...
