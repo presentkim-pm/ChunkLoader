@@ -15,6 +15,9 @@ permissions:
       chunkloader.cmd.register:
         description:       ChunkLoader command - register
         default:           op
+      chunkloader.cmd.unregister:
+        description:       ChunkLoader command - unregister
+        default:           op
       chunkloader.cmd.list:
         description:       ChunkLoader command - list
         default:           op
