@@ -8,6 +8,7 @@ use pocketmine\level\Level;
 use pocketmine\plugin\PluginBase;
 use blugin\chunkloader\lang\PluginLang;
 use blugin\chunkloader\command\PoolCommand;
+use blugin\chunkloader\command\subcommands\RegisterSubcommand;
 use blugin\chunkloader\level\PluginChunkLoader;
 
 class ChunkLoader extends PluginBase{
@@ -56,9 +57,9 @@ class ChunkLoader extends PluginBase{
             }
         }
 
-
         if ($this->command == null) {
             $this->command = new PoolCommand($this, 'chunkloader');
+            $this->command->createSubCommand(RegisterSubcommand::class);
         }
         if ($this->command->isRegistered()) {
             $this->getServer()->getCommandMap()->unregister($this->command);
