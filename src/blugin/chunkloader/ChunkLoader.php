@@ -114,7 +114,7 @@ class ChunkLoader extends PluginBase{
         $config = $this->getConfig();
 
         $chunkHash = (string) Level::chunkHash($chunkX, $chunkZ);
-        /** @var string[] $chunkLoaders */
+        /** @var string[] $chunks */
         $chunks = $config->get($worldName = $level->getFolderName());
         if ($chunks === false) {
             return false;
