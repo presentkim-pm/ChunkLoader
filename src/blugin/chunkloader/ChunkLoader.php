@@ -75,6 +75,61 @@ class ChunkLoader extends PluginBase{
     }
 
     /**
+     * @param int   $chunkX
+     * @param int   $chunkZ
+     * @param Level $level
+     *
+     * @return bool true if registered chunk
+     */
+    public function registerChunk(int $chunkX, int $chunkZ, Level $level) : bool{
+        $config = $this->getConfig();
+
+        $chunkHash = Level::chunkHash($chunkX, $chunkZ);
+        /** @var string[] $chunks */
+        $chunks = $config->get($worldName = $level->getFolderName(), []);
+        if (in_array($chunkHash, $chunks)) {
+            return false;
+        } else {
+            $chunks[] = $chunkHash;
+            $config->set($worldName, $chunks);
+
+            $level->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
+            return true;
+        }
+    }
+
+    /**
+     * @param int   $chunkX
+     * @param int   $chunkZ
+     * @param Level $level
+     *
+     * @return bool true if unregistered chunk
+     */
+    public function unregisterChunk(int $chunkX, int $chunkZ, Level $level) : bool{
+        $config = $this->getConfig();
+
+        $chunkHash = Level::chunkHash($chunkX, $chunkZ);
+        /** @var string[] $chunkLoaders */
+        $chunks = $config->get($worldName = $level->getFolderName());
+        if ($chunks === false) {
+            return false;
+        }
+        if (in_array($chunkHash, $chunks)) {
+            unset($chunks[array_search($chunkHash, $chunks)]);
+            if (count($chunks) === 0) {
+                $config->remove($worldName);
+            } else {
+                $config->set($worldName, $chunks);
+            }
+
+            $level->unregisterChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * @param string $name = ''
      *
      * @return PoolCommand
