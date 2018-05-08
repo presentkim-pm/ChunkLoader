@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace blugin\chunkloader;
 
+use blugin\chunkloader\command\subcommands\ListSubcommand;
 use pocketmine\level\Level;
 use pocketmine\plugin\PluginBase;
 use blugin\chunkloader\lang\PluginLang;
@@ -60,6 +61,7 @@ class ChunkLoader extends PluginBase{
         if ($this->command == null) {
             $this->command = new PoolCommand($this, 'chunkloader');
             $this->command->createSubCommand(RegisterSubcommand::class);
+            $this->command->createSubCommand(ListSubcommand::class);
         }
         if ($this->command->isRegistered()) {
             $this->getServer()->getCommandMap()->unregister($this->command);
