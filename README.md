@@ -15,7 +15,7 @@ Main command : `/chunkloader <register | unregister | list>`
 | :--------- | :---------------------------------- | :--------------------------------- |
 | Register   | \[chunkX\] \[chunkZ\] \[WorldName\] | Register chunk to chunk loader     |
 | Unregister | \[chunkX\] \[chunkZ\] \[WorldName\] | Unregister chunk from chunk loader |
-| List       | \[page\]                            | See registered chunk list            |
+| List       | \[page\]                            | See registered chunk list          |
   
 <br/><br/>
   
