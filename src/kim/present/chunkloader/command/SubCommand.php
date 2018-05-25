@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace blugin\chunkloader\command;
+namespace kim\present\chunkloader\command;
 
 use pocketmine\Server;
 use pocketmine\command\CommandSender;
-use blugin\chunkloader\ChunkLoader;
-use blugin\chunkloader\util\Utils;
+use kim\present\chunkloader\ChunkLoader;
+use kim\present\chunkloader\util\Utils;
 
 abstract class SubCommand{
 

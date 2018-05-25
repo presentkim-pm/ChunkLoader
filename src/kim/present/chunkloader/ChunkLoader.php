@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace blugin\chunkloader;
+namespace kim\present\chunkloader;
 
 use pocketmine\level\Level;
 use pocketmine\plugin\PluginBase;
-use blugin\chunkloader\lang\PluginLang;
-use blugin\chunkloader\command\PoolCommand;
-use blugin\chunkloader\command\subcommands\{
+use kim\present\chunkloader\lang\PluginLang;
+use kim\present\chunkloader\command\PoolCommand;
+use kim\present\chunkloader\command\subcommands\{
   RegisterSubcommand, UnregisterSubcommand, ListSubcommand
 };
-use blugin\chunkloader\level\PluginChunkLoader;
+use kim\present\chunkloader\level\PluginChunkLoader;
 
 class ChunkLoader extends PluginBase{
 

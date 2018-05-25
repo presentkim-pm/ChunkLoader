@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace blugin\chunkloader\level;
+namespace kim\present\chunkloader\level;
 
 use pocketmine\block\Block;
 use pocketmine\level\{
@@ -10,7 +10,7 @@ use pocketmine\level\{
 };
 use pocketmine\level\format\Chunk;
 use pocketmine\math\Vector3;
-use blugin\chunkloader\ChunkLoader;
+use kim\present\chunkloader\ChunkLoader;
 
 class PluginChunkLoader extends Position implements PMChunkLoader{
 

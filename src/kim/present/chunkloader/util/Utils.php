@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace blugin\chunkloader\util;
+namespace kim\present\chunkloader\util;
 
 class Utils{
 

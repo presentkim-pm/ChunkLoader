@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace blugin\chunkloader\command;
+namespace kim\present\chunkloader\command;
 
 
 use pocketmine\command\{
   Command, PluginCommand, CommandExecutor, CommandSender, ConsoleCommandSender
 };
-use blugin\chunkloader\ChunkLoader;
+use kim\present\chunkloader\ChunkLoader;
 
 class PoolCommand extends PluginCommand implements CommandExecutor{
 

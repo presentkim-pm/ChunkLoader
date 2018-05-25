@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace blugin\chunkloader\command\subcommands;
+namespace kim\present\chunkloader\command\subcommands;
 
 use pocketmine\{
   Server, Player
 };
 use pocketmine\command\CommandSender;
 use pocketmine\level\Level;
-use blugin\chunkloader\command\{
+use kim\present\chunkloader\command\{
   PoolCommand, SubCommand
 };
 
