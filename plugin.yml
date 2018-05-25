@@ -1,6 +1,6 @@
 ---
 name:                      ChunkLoader
-main:                      blugin\chunkloader\ChunkLoader
+main:                      kim\present\chunkloader\ChunkLoader
 version:                   1.0.0
 api:                       [3.0.0-ALPHA12]
 author:                    PresentKim

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace blugin\chunkloader\lang;
+namespace kim\present\chunkloader\lang;
 
-use blugin\chunkloader\ChunkLoader;
+use kim\present\chunkloader\ChunkLoader;
 
 class PluginLang{
 

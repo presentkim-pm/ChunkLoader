@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace blugin\chunkloader\command\subcommands;
+namespace kim\present\chunkloader\command\subcommands;
 
 use pocketmine\{
   Server, Player
 };
 use pocketmine\command\CommandSender;
-use blugin\chunkloader\command\{
+use kim\present\chunkloader\command\{
   PoolCommand, SubCommand
 };
 
-class RegisterSubcommand extends SubCommand{
+class UnregisterSubcommand extends SubCommand{
 
     public function __construct(PoolCommand $owner){
-        parent::__construct($owner, 'register');
+        parent::__construct($owner, 'unregister');
     }
 
     /**
@@ -60,10 +60,8 @@ class RegisterSubcommand extends SubCommand{
         } else {
             return false;
         }
-        if (!$level->isChunkGenerated($chunkX, $chunkZ)) {
-            $sender->sendMessage($this->translate('failure.notGenerated', (string) $chunkX, (string) $chunkZ, $level->getFolderName()));
-        } elseif (!$this->plugin->registerChunk($chunkX, $chunkZ, $level)) {
-            $sender->sendMessage($this->translate('failure.already', (string) $chunkX, (string) $chunkZ, $level->getFolderName()));
+        if (!$this->plugin->unregisterChunk($chunkX, $chunkZ, $level)) {
+            $sender->sendMessage($this->translate('failure.notRegistered', (string) $chunkX, (string) $chunkZ, $level->getFolderName()));
         } else {
             $sender->sendMessage($this->translate('success', (string) $chunkX, (string) $chunkZ, $level->getFolderName()));
         }
