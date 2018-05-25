@@ -1,0 +1,11 @@
+--- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/PresentKim/ChunkLoader-PMMP/ChunkLoader
+
+branches:
+- master
+
+projects:
+  ChunkLoader:
+    projectId: 2893
+    path: ""
+    icon: assets/icon/512x512.png
+...
