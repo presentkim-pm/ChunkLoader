@@ -7,11 +7,10 @@ namespace kim\present\chunkloader\lang;
 use kim\present\chunkloader\ChunkLoader;
 
 class PluginLang{
-
 	public const FALLBACK_LANGUAGE = "eng";
 
 	/**
-	 * @var DustBin
+	 * @var ChunkLoader
 	 */
 	protected $plugin;
 
@@ -25,6 +24,11 @@ class PluginLang{
 	 */
 	protected $fallbackLang = [];
 
+	/**
+	 * PluginLang constructor.
+	 *
+	 * @param ChunkLoader $plugin
+	 */
 	public function __construct(ChunkLoader $plugin){
 		$this->plugin = $plugin;
 
@@ -40,101 +44,6 @@ class PluginLang{
 		}
 		$this->lang = $this->loadLang($langFile);
 		$this->fallbackLang = $this->loadLang($fallbackLangResource);
-	}
-
-	/**
-	 * @return DustBin
-	 */
-	public function getPlugin() : DustBin{
-		return $this->plugin;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getLang() : array{
-		return $this->lang;
-	}
-
-	/**
-	 * @param string $id
-	 *
-	 * @return null|string
-	 */
-	public function get(string $id) : ?string{
-		if(isset($this->lang[$id])){
-			$result = $this->lang[$id];
-		}elseif(isset($this->fallbackLang[$id])){
-			$result = $this->fallbackLang[$id];
-		}else{
-			return null;
-		}
-		if(is_array($result)){
-			return $result[array_rand($result)];
-		}else{
-			return $result;
-		}
-	}
-
-	/**
-	 * @param string $id
-	 *
-	 * @return null|string[]
-	 */
-	public function getArray(string $id) : ?array{
-		if(isset($this->lang[$id])){
-			$result = $this->lang[$id];
-		}elseif(isset($this->fallbackLang[$id])){
-			$result = $this->fallbackLang[$id];
-		}else{
-			return null;
-		}
-		if(is_array($result)){
-			return $result;
-		}else{
-			return [$result];
-		}
-	}
-
-	/**
-	 * @param string[] $lang
-	 */
-	public function setLang(array $lang) : void{
-		$this->lang = $lang;
-	}
-
-	/**
-	 * @param string   $id
-	 * @param string[] $params = []
-	 *
-	 * @return null|string
-	 */
-	public function translate(string $id, array $params = []) : ?string{
-		$text = $this->get($id);
-		if($text === null){
-			return $id;
-		}else{
-			foreach($params as $i => $param){
-				$text = str_replace("{%$i}", $param, $text);
-			}
-			return $text;
-		}
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getLanguageList() : array{
-		$result = [];
-		foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->plugin->getSourceFolder() . 'resources/lang/')) as $filePath => $fileInfo){
-			if(substr($filePath, -4) == '.ini'){
-				$lang = $this->loadLang($filePath);
-				if(isset($lang['language.name'])){
-					$result[substr($fileInfo->getFilename(), 0, -4)] = $lang['language.name'];
-				}
-			}
-		}
-		return $result;
 	}
 
 	/**
@@ -159,5 +68,100 @@ class PluginLang{
 		}else{
 			return null;
 		}
+	}
+
+	/**
+	 * @return ChunkLoader
+	 */
+	public function getPlugin() : ChunkLoader{
+		return $this->plugin;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getLang() : array{
+		return $this->lang;
+	}
+
+	/**
+	 * @param string[] $lang
+	 */
+	public function setLang(array $lang) : void{
+		$this->lang = $lang;
+	}
+
+	/**
+	 * @param string $id
+	 *
+	 * @return null|string[]
+	 */
+	public function getArray(string $id) : ?array{
+		if(isset($this->lang[$id])){
+			$result = $this->lang[$id];
+		}elseif(isset($this->fallbackLang[$id])){
+			$result = $this->fallbackLang[$id];
+		}else{
+			return null;
+		}
+		if(is_array($result)){
+			return $result;
+		}else{
+			return [$result];
+		}
+	}
+
+	/**
+	 * @param string   $id
+	 * @param string[] $params = []
+	 *
+	 * @return null|string
+	 */
+	public function translate(string $id, array $params = []) : ?string{
+		$text = $this->get($id);
+		if($text === null){
+			return $id;
+		}else{
+			foreach($params as $i => $param){
+				$text = str_replace("{%$i}", $param, $text);
+			}
+			return $text;
+		}
+	}
+
+	/**
+	 * @param string $id
+	 *
+	 * @return null|string
+	 */
+	public function get(string $id) : ?string{
+		if(isset($this->lang[$id])){
+			$result = $this->lang[$id];
+		}elseif(isset($this->fallbackLang[$id])){
+			$result = $this->fallbackLang[$id];
+		}else{
+			return null;
+		}
+		if(is_array($result)){
+			return $result[array_rand($result)];
+		}else{
+			return $result;
+		}
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getLanguageList() : array{
+		$result = [];
+		foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->plugin->getSourceFolder() . 'resources/lang/')) as $filePath => $fileInfo){
+			if(substr($filePath, -4) == '.ini'){
+				$lang = $this->loadLang($filePath);
+				if(isset($lang['language.name'])){
+					$result[substr($fileInfo->getFilename(), 0, -4)] = $lang['language.name'];
+				}
+			}
+		}
+		return $result;
 	}
 }

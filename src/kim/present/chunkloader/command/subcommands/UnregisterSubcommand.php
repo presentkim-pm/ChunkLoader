@@ -13,7 +13,11 @@ use pocketmine\{
 use pocketmine\command\CommandSender;
 
 class UnregisterSubcommand extends SubCommand{
-
+	/**
+	 * UnregisterSubcommand constructor.
+	 *
+	 * @param PoolCommand $owner
+	 */
 	public function __construct(PoolCommand $owner){
 		parent::__construct($owner, 'unregister');
 	}

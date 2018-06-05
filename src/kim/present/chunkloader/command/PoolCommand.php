@@ -4,19 +4,21 @@ declare(strict_types=1);
 
 namespace kim\present\chunkloader\command;
 
-
 use kim\present\chunkloader\ChunkLoader;
 use pocketmine\command\{
 	Command, CommandExecutor, CommandSender, ConsoleCommandSender, PluginCommand
 };
 
 class PoolCommand extends PluginCommand implements CommandExecutor{
-
-	/** @var SubCommand[] */
-	protected $subCommands = [];
-
-	/** @var string */
+	/**
+	 * @var string
+	 */
 	public $uname;
+
+	/**
+	 * @var SubCommand[]
+	 */
+	protected $subCommands = [];
 
 	/**
 	 * @param ChunkLoader  $owner
@@ -38,6 +40,28 @@ class PoolCommand extends PluginCommand implements CommandExecutor{
 		}
 
 		$this->subCommands = $subCommands;
+	}
+
+	/**
+	 * @param CommandSender|null $sender
+	 *
+	 * @return string
+	 */
+	public function getUsage(CommandSender $sender = null) : string{
+		if($sender === null){
+			return $this->usageMessage;
+		}else{
+			$subCommands = [];
+			foreach($this->subCommands as $key => $subCommand){
+				if($subCommand->checkPermission($sender)){
+					$subCommands[] = $subCommand->getLabel();
+				}
+			}
+			/** @var ChunkLoader $plugin */
+			$plugin = $this->getPlugin();
+			$lang = $plugin->getLanguage();
+			return $lang->translate("commands.{$this->uname}.usage", [implode($lang->translate("commands.{$this->uname}.usage.separator"), $subCommands)]);
+		}
 	}
 
 	/**
@@ -63,35 +87,22 @@ class PoolCommand extends PluginCommand implements CommandExecutor{
 	}
 
 	/**
-	 * @param CommandSender|null $sender
-	 *
-	 * @return string
+	 * @return SubCommand[]
 	 */
-	public function getUsage(CommandSender $sender = null) : string{
-		if($sender === null){
-			return $this->usageMessage;
-		}else{
-			$subCommands = [];
-			foreach($this->subCommands as $key => $subCommand){
-				if($subCommand->checkPermission($sender)){
-					$subCommands[] = $subCommand->getLabel();
-				}
-			}
-			return $this->getPlugin()->getLanguage()->translate("commands.{$this->uname}.usage", [implode($this->getPlugin()->getLanguage()->translate("commands.{$this->uname}.usage.separator"), $subCommands)]);
-		}
-	}
-
-	/** @return SubCommand[] */
 	public function getSubCommands() : array{
 		return $this->subCommands;
 	}
 
-	/** @param SubCommand[] $subCommands */
+	/**
+	 * @param SubCommand[] $subCommands
+	 */
 	public function setSubCommands(SubCommand ...$subCommands) : void{
 		$this->subCommands = $subCommands;
 	}
 
-	/** @param SubCommand::class $subCommandClass */
+	/**
+	 * @param SubCommand::class $subCommandClass
+	 */
 	public function createSubCommand($subCommandClass) : void{
 		$this->subCommands[] = new $subCommandClass($this);
 	}

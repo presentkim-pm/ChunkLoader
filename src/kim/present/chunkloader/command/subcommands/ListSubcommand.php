@@ -14,7 +14,11 @@ use pocketmine\command\CommandSender;
 use pocketmine\level\Level;
 
 class ListSubcommand extends SubCommand{
-
+	/**
+	 * ListSubcommand constructor.
+	 *
+	 * @param PoolCommand $owner
+	 */
 	public function __construct(PoolCommand $owner){
 		parent::__construct($owner, 'list');
 	}

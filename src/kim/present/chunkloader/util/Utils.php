@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace kim\present\chunkloader\util;
 
 class Utils{
-
 	/**
 	 * @param string $str
 	 * @param array  $strs

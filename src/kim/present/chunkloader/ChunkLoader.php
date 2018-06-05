@@ -14,23 +14,32 @@ use pocketmine\level\Level;
 use pocketmine\plugin\PluginBase;
 
 class ChunkLoader extends PluginBase{
+	/**
+	 * @var ChunkLoader
+	 */
+	private static $instance;
 
-	/** @var ChunkLoader */
-	private static $instance = null;
+	/**
+	 * @var PoolCommand
+	 */
+	private $command;
 
-	/** @return ChunkLoader */
+	/**
+	 * @var PluginLang
+	 */
+	private $language;
+
+	/**
+	 * @var PluginChunkLoader
+	 */
+	private $chunkLoader;
+
+	/**
+	 * @return ChunkLoader
+	 */
 	public static function getInstance() : ChunkLoader{
 		return self::$instance;
 	}
-
-	/** @var PoolCommand */
-	private $command;
-
-	/** @var PluginLang */
-	private $language;
-
-	/** @var PluginChunkLoader */
-	private $chunkLoader;
 
 	public function onLoad() : void{
 		self::$instance = $this;

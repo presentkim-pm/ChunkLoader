@@ -4,32 +4,45 @@ declare(strict_types=1);
 
 namespace kim\present\chunkloader\command;
 
-use kim\present\chunkloader\ChunkLoader;
 use kim\present\chunkloader\util\Utils;
+use kim\present\chunkloader\ChunkLoader;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 
 abstract class SubCommand{
-
-	/** @var PoolCommand */
+	/**
+	 * @var PoolCommand
+	 */
 	protected $owner;
 
-	/** @var ChunkLoader */
+	/**
+	 * @var ChunkLoader
+	 */
 	protected $plugin;
 
-	/** @var string */
+	/**
+	 * @var string
+	 */
 	protected $strId;
 
-	/** @var string */
+	/**
+	 * @var string
+	 */
 	protected $permission;
 
-	/** @var string */
+	/**
+	 * @var string
+	 */
 	protected $label;
 
-	/** @var string[] */
+	/**
+	 * @var string[]
+	 */
 	protected $aliases;
 
-	/** @var string */
+	/**
+	 * @var string
+	 */
 	protected $usage;
 
 	/**
@@ -51,6 +64,16 @@ abstract class SubCommand{
 	}
 
 	/**
+	 * @param string   $tag
+	 * @param string[] $params
+	 *
+	 * @return string
+	 */
+	public function translate(string $tag, string ...$params) : string{
+		return $this->plugin->getLanguage()->translate("{$this->strId}.{$tag}", $params);
+	}
+
+	/**
 	 * @param CommandSender $sender
 	 * @param String[]      $args
 	 */
@@ -61,14 +84,6 @@ abstract class SubCommand{
 			$sender->sendMessage(Server::getInstance()->getLanguage()->translateString("commands.generic.usage", [$this->usage]));
 		}
 	}
-
-	/**
-	 * @param CommandSender $sender
-	 * @param String[]      $args
-	 *
-	 * @return bool
-	 */
-	abstract public function onCommand(CommandSender $sender, array $args) : bool;
 
 	/**
 	 * @param CommandSender $target
@@ -84,14 +99,12 @@ abstract class SubCommand{
 	}
 
 	/**
-	 * @param string   $tag
-	 * @param string[] $params
+	 * @param CommandSender $sender
+	 * @param String[]      $args
 	 *
-	 * @return string
+	 * @return bool
 	 */
-	public function translate(string $tag, string ...$params) : string{
-		return $this->plugin->getLanguage()->translate("{$this->strId}.{$tag}", $params);
-	}
+	abstract public function onCommand(CommandSender $sender, array $args) : bool;
 
 	/**
 	 * @param string $label
@@ -102,32 +115,44 @@ abstract class SubCommand{
 		return strcasecmp($label, $this->label) === 0 || $this->aliases && Utils::in_arrayi($label, $this->aliases);
 	}
 
-	/** @return string */
+	/**
+	 * @return string
+	 */
 	public function getLabel() : string{
 		return $this->label;
 	}
 
-	/** @param string $label */
+	/**
+	 * @param string $label
+	 */
 	public function setLabel(string $label) : void{
 		$this->label = $label;
 	}
 
-	/**  @return string[] */
+	/**
+	 * @return string[]
+	 */
 	public function getAliases() : array{
 		return $this->aliases;
 	}
 
-	/** @param string[] $aliases */
+	/**
+	 * @param string[] $aliases
+	 */
 	public function setAliases(array $aliases) : void{
 		$this->aliases = $aliases;
 	}
 
-	/** @return string */
+	/**
+	 * @return string
+	 */
 	public function getUsage() : string{
 		return $this->usage;
 	}
 
-	/** @param string $usage */
+	/**
+	 * @param string $usage
+	 */
 	public function setUsage(string $usage) : void{
 		$this->usage = $usage;
 	}

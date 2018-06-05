@@ -13,7 +13,11 @@ use pocketmine\{
 use pocketmine\command\CommandSender;
 
 class RegisterSubcommand extends SubCommand{
-
+	/**
+	 * RegisterSubcommand constructor.
+	 *
+	 * @param PoolCommand $owner
+	 */
 	public function __construct(PoolCommand $owner){
 		parent::__construct($owner, 'register');
 	}
