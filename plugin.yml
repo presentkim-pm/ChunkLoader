@@ -1,24 +1,24 @@
 ---
-name:                      ChunkLoader
-main:                      kim\present\chunkloader\ChunkLoader
-version:                   1.0.0
-api:                       [3.0.0-ALPHA12]
-author:                    PresentKim
-website:                   https://github.com/PresentKim/ChunkLoader-PMMP
-description:               add chunk loader
+name: ChunkLoader
+main: kim\present\chunkloader\ChunkLoader
+version: 1.0.0
+api: [3.0.0-ALPHA12]
+author: PresentKim
+website: https://github.com/PresentKim/ChunkLoader-PMMP
+description: add chunk loader
 
 permissions:
   chunkloader.cmd:
-    description:           ChunkLoader command
-    default:               op
+    description: ChunkLoader command
+    default: op
     children:
       chunkloader.cmd.register:
-        description:       ChunkLoader command - register
-        default:           op
+        description: ChunkLoader command - register
+        default: op
       chunkloader.cmd.unregister:
-        description:       ChunkLoader command - unregister
-        default:           op
+        description: ChunkLoader command - unregister
+        default: op
       chunkloader.cmd.list:
-        description:       ChunkLoader command - list
-        default:           op
+        description: ChunkLoader command - list
+        default: op
 ...

@@ -4,161 +4,161 @@ declare(strict_types=1);
 
 namespace kim\present\chunkloader;
 
-use pocketmine\level\Level;
-use pocketmine\plugin\PluginBase;
-use kim\present\chunkloader\lang\PluginLang;
 use kim\present\chunkloader\command\PoolCommand;
 use kim\present\chunkloader\command\subcommands\{
-  RegisterSubcommand, UnregisterSubcommand, ListSubcommand
+	ListSubcommand, RegisterSubcommand, UnregisterSubcommand
 };
+use kim\present\chunkloader\lang\PluginLang;
 use kim\present\chunkloader\level\PluginChunkLoader;
+use pocketmine\level\Level;
+use pocketmine\plugin\PluginBase;
 
 class ChunkLoader extends PluginBase{
 
-    /** @var ChunkLoader */
-    private static $instance = null;
+	/** @var ChunkLoader */
+	private static $instance = null;
 
-    /** @return ChunkLoader */
-    public static function getInstance() : ChunkLoader{
-        return self::$instance;
-    }
+	/** @return ChunkLoader */
+	public static function getInstance() : ChunkLoader{
+		return self::$instance;
+	}
 
-    /** @var PoolCommand */
-    private $command;
+	/** @var PoolCommand */
+	private $command;
 
-    /** @var PluginLang */
-    private $language;
+	/** @var PluginLang */
+	private $language;
 
-    /** @var PluginChunkLoader */
-    private $chunkLoader;
+	/** @var PluginChunkLoader */
+	private $chunkLoader;
 
-    public function onLoad() : void{
-        self::$instance = $this;
-        $this->chunkLoader = new PluginChunkLoader($this);
-    }
+	public function onLoad() : void{
+		self::$instance = $this;
+		$this->chunkLoader = new PluginChunkLoader($this);
+	}
 
-    public function onEnable() : void{
-        $dataFolder = $this->getDataFolder();
-        if (!file_exists($dataFolder)) {
-            mkdir($dataFolder, 0777, true);
-        }
-        $this->language = new PluginLang($this);
-        $this->reloadConfig();
+	public function onEnable() : void{
+		$dataFolder = $this->getDataFolder();
+		if(!file_exists($dataFolder)){
+			mkdir($dataFolder, 0777, true);
+		}
+		$this->language = new PluginLang($this);
+		$this->reloadConfig();
 
-        /** @var string[][] $configData */
-        $configData = $this->getConfig()->getAll();
-        foreach ($configData as $worldName => $chunks) {
-            $level = $this->getServer()->getLevelByName($worldName);
-            if ($level === null) {
-                $this->getLogger()->error("{$worldName} is invalid world name");
-            } else {
-                foreach ($chunks as $key => $chunkHash) {
-                    Level::getXZ((int) $chunkHash, $chunkX, $chunkZ);
-                    $level->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
-                }
-            }
-        }
+		/** @var string[][] $configData */
+		$configData = $this->getConfig()->getAll();
+		foreach($configData as $worldName => $chunks){
+			$level = $this->getServer()->getLevelByName($worldName);
+			if($level === null){
+				$this->getLogger()->error("{$worldName} is invalid world name");
+			}else{
+				foreach($chunks as $key => $chunkHash){
+					Level::getXZ((int) $chunkHash, $chunkX, $chunkZ);
+					$level->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
+				}
+			}
+		}
 
-        if ($this->command == null) {
-            $this->command = new PoolCommand($this, 'chunkloader');
-            $this->command->createSubCommand(RegisterSubcommand::class);
-            $this->command->createSubCommand(UnregisterSubcommand::class);
-            $this->command->createSubCommand(ListSubcommand::class);
-        }
-        if ($this->command->isRegistered()) {
-            $this->getServer()->getCommandMap()->unregister($this->command);
-        }
-        $this->getServer()->getCommandMap()->register(strtolower($this->getName()), $this->command);
-    }
+		if($this->command == null){
+			$this->command = new PoolCommand($this, 'chunkloader');
+			$this->command->createSubCommand(RegisterSubcommand::class);
+			$this->command->createSubCommand(UnregisterSubcommand::class);
+			$this->command->createSubCommand(ListSubcommand::class);
+		}
+		if($this->command->isRegistered()){
+			$this->getServer()->getCommandMap()->unregister($this->command);
+		}
+		$this->getServer()->getCommandMap()->register(strtolower($this->getName()), $this->command);
+	}
 
-    public function onDisable() : void{
-        $dataFolder = $this->getDataFolder();
-        if (!file_exists($dataFolder)) {
-            mkdir($dataFolder, 0777, true);
-        }
-        $this->saveConfig();
-    }
+	public function onDisable() : void{
+		$dataFolder = $this->getDataFolder();
+		if(!file_exists($dataFolder)){
+			mkdir($dataFolder, 0777, true);
+		}
+		$this->saveConfig();
+	}
 
-    /**
-     * @param int   $chunkX
-     * @param int   $chunkZ
-     * @param Level $level
-     *
-     * @return bool true if registered chunk
-     */
-    public function registerChunk(int $chunkX, int $chunkZ, Level $level) : bool{
-        $config = $this->getConfig();
+	/**
+	 * @param int   $chunkX
+	 * @param int   $chunkZ
+	 * @param Level $level
+	 *
+	 * @return bool true if registered chunk
+	 */
+	public function registerChunk(int $chunkX, int $chunkZ, Level $level) : bool{
+		$config = $this->getConfig();
 
-        $chunkHash = (string) Level::chunkHash($chunkX, $chunkZ);
-        /** @var string[] $chunks */
-        $chunks = $config->get($worldName = $level->getFolderName(), []);
-        if (in_array($chunkHash, $chunks)) {
-            return false;
-        } else {
-            $chunks[] = $chunkHash;
-            $config->set($worldName, array_values($chunks));
+		$chunkHash = (string) Level::chunkHash($chunkX, $chunkZ);
+		/** @var string[] $chunks */
+		$chunks = $config->get($worldName = $level->getFolderName(), []);
+		if(in_array($chunkHash, $chunks)){
+			return false;
+		}else{
+			$chunks[] = $chunkHash;
+			$config->set($worldName, array_values($chunks));
 
-            $level->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
-            return true;
-        }
-    }
+			$level->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
+			return true;
+		}
+	}
 
-    /**
-     * @param int   $chunkX
-     * @param int   $chunkZ
-     * @param Level $level
-     *
-     * @return bool true if unregistered chunk
-     */
-    public function unregisterChunk(int $chunkX, int $chunkZ, Level $level) : bool{
-        $config = $this->getConfig();
+	/**
+	 * @param int   $chunkX
+	 * @param int   $chunkZ
+	 * @param Level $level
+	 *
+	 * @return bool true if unregistered chunk
+	 */
+	public function unregisterChunk(int $chunkX, int $chunkZ, Level $level) : bool{
+		$config = $this->getConfig();
 
-        $chunkHash = (string) Level::chunkHash($chunkX, $chunkZ);
-        /** @var string[] $chunks */
-        $chunks = $config->get($worldName = $level->getFolderName());
-        if ($chunks === false) {
-            return false;
-        }
-        if (in_array($chunkHash, $chunks)) {
-            unset($chunks[array_search($chunkHash, $chunks)]);
-            if (count($chunks) === 0) {
-                $config->remove($worldName);
-            } else {
-                $config->set($worldName, array_values($chunks));
-            }
+		$chunkHash = (string) Level::chunkHash($chunkX, $chunkZ);
+		/** @var string[] $chunks */
+		$chunks = $config->get($worldName = $level->getFolderName());
+		if($chunks === false){
+			return false;
+		}
+		if(in_array($chunkHash, $chunks)){
+			unset($chunks[array_search($chunkHash, $chunks)]);
+			if(count($chunks) === 0){
+				$config->remove($worldName);
+			}else{
+				$config->set($worldName, array_values($chunks));
+			}
 
-            $level->unregisterChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
-            return true;
-        } else {
-            return false;
-        }
-    }
+			$level->unregisterChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
+			return true;
+		}else{
+			return false;
+		}
+	}
 
-    /**
-     * @param string $name = ''
-     *
-     * @return PoolCommand
-     */
-    public function getCommand(string $name = '') : PoolCommand{
-        return $this->command;
-    }
+	/**
+	 * @param string $name = ''
+	 *
+	 * @return PoolCommand
+	 */
+	public function getCommand(string $name = '') : PoolCommand{
+		return $this->command;
+	}
 
-    /**
-     * @return PluginLang
-     */
-    public function getLanguage() : PluginLang{
-        return $this->language;
-    }
+	/**
+	 * @return PluginLang
+	 */
+	public function getLanguage() : PluginLang{
+		return $this->language;
+	}
 
-    /**
-     * @return string
-     */
-    public function getSourceFolder() : string{
-        $pharPath = \Phar::running();
-        if (empty($pharPath)) {
-            return dirname(__FILE__, 4) . DIRECTORY_SEPARATOR;
-        } else {
-            return $pharPath . DIRECTORY_SEPARATOR;
-        }
-    }
+	/**
+	 * @return string
+	 */
+	public function getSourceFolder() : string{
+		$pharPath = \Phar::running();
+		if(empty($pharPath)){
+			return dirname(__FILE__, 4) . DIRECTORY_SEPARATOR;
+		}else{
+			return $pharPath . DIRECTORY_SEPARATOR;
+		}
+	}
 }
