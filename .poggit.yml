@@ -5,7 +5,7 @@ branches:
 
 projects:
   ChunkLoader:
-    projectId: 2893
+    #projectId: 2893
     path: ""
     icon: assets/icon/512x512.png
 ...
