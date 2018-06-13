@@ -2,7 +2,7 @@
 name: ChunkLoader
 main: kim\present\chunkloader\ChunkLoader
 version: 1.0.0
-api: [3.0.0-ALPHA12]
+api: [3.0.0, 3.0.0-ALPHA12]
 author: PresentKim
 website: https://github.com/PresentKim/ChunkLoader-PMMP
 description: add chunk loader
