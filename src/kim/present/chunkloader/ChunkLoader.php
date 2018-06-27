@@ -20,6 +20,13 @@ class ChunkLoader extends PluginBase{
 	private static $instance;
 
 	/**
+	 * @return ChunkLoader
+	 */
+	public static function getInstance() : ChunkLoader{
+		return self::$instance;
+	}
+
+	/**
 	 * @var PoolCommand
 	 */
 	private $command;
@@ -33,13 +40,6 @@ class ChunkLoader extends PluginBase{
 	 * @var PluginChunkLoader
 	 */
 	private $chunkLoader;
-
-	/**
-	 * @return ChunkLoader
-	 */
-	public static function getInstance() : ChunkLoader{
-		return self::$instance;
-	}
 
 	public function onLoad() : void{
 		self::$instance = $this;
@@ -141,15 +141,6 @@ class ChunkLoader extends PluginBase{
 		}else{
 			return false;
 		}
-	}
-
-	/**
-	 * @param string $name = ''
-	 *
-	 * @return PoolCommand
-	 */
-	public function getCommand(string $name = '') : PoolCommand{
-		return $this->command;
 	}
 
 	/**
