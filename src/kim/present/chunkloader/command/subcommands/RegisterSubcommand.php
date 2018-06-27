@@ -31,7 +31,7 @@ class RegisterSubcommand extends SubCommand{
 	public function onCommand(CommandSender $sender, array $args) : bool{
 		if(isset($args[0])){
 			if(!is_numeric($args[0])){
-				$sender->sendMessage($this->plugin->getLanguage()->translate('commands.generic.num.notNumber', [$args[0]]));
+				$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.generic.num.notNumber', [$args[0]]));
 				return true;
 			}else{
 				$chunkX = (int) $args[0];
@@ -43,7 +43,7 @@ class RegisterSubcommand extends SubCommand{
 		}
 		if(isset($args[1])){
 			if(!is_numeric($args[1])){
-				$sender->sendMessage($this->plugin->getLanguage()->translate('commands.generic.num.notNumber', [$args[1]]));
+				$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.generic.num.notNumber', [$args[1]]));
 				return true;
 			}else{
 				$chunkZ = (int) $args[1];

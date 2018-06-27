@@ -5,162 +5,99 @@ declare(strict_types=1);
 namespace kim\present\chunkloader\lang;
 
 use kim\present\chunkloader\ChunkLoader;
+use pocketmine\lang\BaseLang;
 
-class PluginLang{
-	public const FALLBACK_LANGUAGE = "eng";
+class PluginLang extends BaseLang{
+	/**
+	 * @Override for support the array at lang file
+	 *
+	 * @param string $path
+	 * @param array  $d
+	 *
+	 * @return bool
+	 */
+	protected static function loadLang(string $path, array &$d) : bool{
+		if(file_exists($path)){
+			$d = array_map(function($entry){
+				return is_string($entry) ? stripcslashes($entry) : $entry;
+			}, parse_ini_file($path, false, INI_SCANNER_RAW));
+			return true;
+		}else{
+			return false;
+		}
+	}
 
 	/**
 	 * @var ChunkLoader
 	 */
-	protected $plugin;
+	private $plugin;
 
 	/**
-	 * @var string[]
-	 */
-	protected $lang = [];
-
-	/**
-	 * @var string[]
-	 */
-	protected $fallbackLang = [];
-
-	/**
+	 * @noinspection PhpMissingParentConstructorInspection
 	 * PluginLang constructor.
 	 *
 	 * @param ChunkLoader $plugin
+	 * @param string     $lang
 	 */
-	public function __construct(ChunkLoader $plugin){
+	public function __construct(ChunkLoader $plugin, string $lang){
+		$this->langName = strtolower($lang);
 		$this->plugin = $plugin;
 
-		$fallbackLangResource = "{$plugin->getSourceFolder()}resources/lang/eng.ini";
-		$dataFolder = $plugin->getDataFolder();
-		$langFile = "{$dataFolder}lang.ini";
-		$langResource = "{$plugin->getSourceFolder()}resources/lang/{$plugin->getServer()->getLanguage()->getLang()}.ini";
-		if(!file_exists($langFile)){
-			if(!file_exists($dataFolder)){
-				mkdir($dataFolder, 0777, true);
-			}
-			copy(file_exists($langResource) ? $langResource : $fallbackLangResource, $langFile);
+		$this->load($lang);
+		if(!self::loadLang($file = $plugin->getDataFolder() . "lang/" . self::FALLBACK_LANGUAGE . "/lang.ini", $this->fallbackLang)){
+			$plugin->getLogger()->error("Missing required language file $file");
 		}
-		$this->lang = $this->loadLang($langFile);
-		$this->fallbackLang = $this->loadLang($fallbackLangResource);
 	}
 
 	/**
-	 * @param string $file
+	 * @param string $lang
 	 *
-	 * @return null|array
+	 * @return bool
 	 */
-	public function loadLang(string $file) : ?array{
-		if(file_exists($file)){
-			$result = [];
-			foreach(parse_ini_file($file, false, INI_SCANNER_RAW) as $key => $value){
-				if(is_string($value)){
-					$result[$key] = stripcslashes($value);
-				}elseif(is_array($value)){
-					$result[$key] = [];
-					foreach($value as $index => $str){
-						$result[$key][] = stripcslashes($str);
-					}
-				}
+	public function load(string $lang) : bool{
+		if($this->isAvailableLanguage($lang)){
+			if(!self::loadLang($file = $this->plugin->getDataFolder() . "lang/" . $this->langName . "/lang.ini", $this->lang)){
+				$this->plugin->getLogger()->error("Missing required language file $file");
+			}else{
+				return true;
 			}
-			return $result;
-		}else{
-			return null;
 		}
+		return false;
 	}
 
 	/**
-	 * @return ChunkLoader
-	 */
-	public function getPlugin() : ChunkLoader{
-		return $this->plugin;
-	}
-
-	/**
+	 * Read available language list from language.list file
+	 *
 	 * @return string[]
 	 */
-	public function getLang() : array{
-		return $this->lang;
+	public function getAvailableLanguageList() : array{
+		return explode("\n", file_get_contents($this->plugin->getDataFolder() . "lang/language.list"));
 	}
 
 	/**
-	 * @param string[] $lang
+	 * @param string $lang
+	 *
+	 * @return bool
 	 */
-	public function setLang(array $lang) : void{
-		$this->lang = $lang;
+	public function isAvailableLanguage(string $lang) : bool{
+		return in_array(strtolower($lang), $this->getAvailableLanguageList());
 	}
 
 	/**
 	 * @param string $id
 	 *
-	 * @return null|string[]
+	 * @return string[]|null
 	 */
 	public function getArray(string $id) : ?array{
+		$result = null;
 		if(isset($this->lang[$id])){
 			$result = $this->lang[$id];
 		}elseif(isset($this->fallbackLang[$id])){
 			$result = $this->fallbackLang[$id];
-		}else{
+		}
+
+		if(!is_array($result)){
 			return null;
-		}
-		if(is_array($result)){
-			return $result;
-		}else{
-			return [$result];
-		}
-	}
-
-	/**
-	 * @param string   $id
-	 * @param string[] $params = []
-	 *
-	 * @return null|string
-	 */
-	public function translate(string $id, array $params = []) : ?string{
-		$text = $this->get($id);
-		if($text === null){
-			return $id;
-		}else{
-			foreach($params as $i => $param){
-				$text = str_replace("{%$i}", $param, $text);
-			}
-			return $text;
-		}
-	}
-
-	/**
-	 * @param string $id
-	 *
-	 * @return null|string
-	 */
-	public function get(string $id) : ?string{
-		if(isset($this->lang[$id])){
-			$result = $this->lang[$id];
-		}elseif(isset($this->fallbackLang[$id])){
-			$result = $this->fallbackLang[$id];
-		}else{
-			return null;
-		}
-		if(is_array($result)){
-			return $result[array_rand($result)];
-		}else{
-			return $result;
-		}
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getLanguageList() : array{
-		$result = [];
-		foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->plugin->getSourceFolder() . 'resources/lang/')) as $filePath => $fileInfo){
-			if(substr($filePath, -4) == '.ini'){
-				$lang = $this->loadLang($filePath);
-				if(isset($lang['language.name'])){
-					$result[substr($fileInfo->getFilename(), 0, -4)] = $lang['language.name'];
-				}
-			}
 		}
 		return $result;
 	}

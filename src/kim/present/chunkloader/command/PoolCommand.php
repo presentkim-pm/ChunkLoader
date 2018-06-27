@@ -26,13 +26,13 @@ class PoolCommand extends PluginCommand implements CommandExecutor{
 	 * @param SubCommand[] $subCommands
 	 */
 	public function __construct(ChunkLoader $owner, string $name, SubCommand ...$subCommands){
-		parent::__construct($owner->getLanguage()->translate("commands.{$name}"), $owner);
+		parent::__construct($owner->getLanguage()->translateString("commands.{$name}"), $owner);
 		$this->setExecutor($this);
 
 		$this->uname = $name;
 		$this->setPermission("{$name}.cmd");
 
-		$this->description = $owner->getLanguage()->translate("commands.{$this->uname}.description");
+		$this->description = $owner->getLanguage()->translateString("commands.{$this->uname}.description");
 		$this->usageMessage = $this->getUsage(new ConsoleCommandSender());
 		$aliases = $owner->getLanguage()->getArray("commands.{$this->uname}.aliases");
 		if(is_array($aliases)){
@@ -60,7 +60,7 @@ class PoolCommand extends PluginCommand implements CommandExecutor{
 			/** @var ChunkLoader $plugin */
 			$plugin = $this->getPlugin();
 			$lang = $plugin->getLanguage();
-			return $lang->translate("commands.{$this->uname}.usage", [implode($lang->translate("commands.{$this->uname}.usage.separator"), $subCommands)]);
+			return $lang->translateString("commands.{$this->uname}.usage", [implode($lang->translateString("commands.{$this->uname}.usage.separator"), $subCommands)]);
 		}
 	}
 

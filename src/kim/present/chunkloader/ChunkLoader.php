@@ -27,14 +27,14 @@ class ChunkLoader extends PluginBase{
 	}
 
 	/**
-	 * @var PoolCommand
-	 */
-	private $command;
-
-	/**
 	 * @var PluginLang
 	 */
 	private $language;
+
+	/**
+	 * @var PoolCommand
+	 */
+	private $command;
 
 	/**
 	 * @var PluginChunkLoader
@@ -51,7 +51,7 @@ class ChunkLoader extends PluginBase{
 		if(!file_exists($dataFolder)){
 			mkdir($dataFolder, 0777, true);
 		}
-		$this->language = new PluginLang($this);
+		$this->language = new PluginLang($this, $this->getServer()->getLanguage()->getLang());
 		$this->reloadConfig();
 
 		/** @var string[][] $configData */
@@ -148,17 +148,5 @@ class ChunkLoader extends PluginBase{
 	 */
 	public function getLanguage() : PluginLang{
 		return $this->language;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getSourceFolder() : string{
-		$pharPath = \Phar::running();
-		if(empty($pharPath)){
-			return dirname(__FILE__, 5) . DIRECTORY_SEPARATOR;
-		}else{
-			return $pharPath . DIRECTORY_SEPARATOR;
-		}
 	}
 }
