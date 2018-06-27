@@ -88,14 +88,6 @@ class ChunkLoader extends PluginBase{
 		$this->getServer()->getCommandMap()->register(strtolower($this->getName()), $this->command);
 	}
 
-	public function onDisable() : void{
-		$dataFolder = $this->getDataFolder();
-		if(!file_exists($dataFolder)){
-			mkdir($dataFolder, 0777, true);
-		}
-		$this->saveConfig();
-	}
-
 	/**
 	 * @Override for multilingual support of the config file
 	 *
