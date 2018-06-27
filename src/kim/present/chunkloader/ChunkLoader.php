@@ -47,16 +47,20 @@ class ChunkLoader extends PluginBase{
 	}
 
 	public function onEnable() : void{
+		//Save default resources
 		$this->saveResource("lang/eng/lang.ini", false);
 		$this->saveResource("lang/kor/lang.ini", false);
 		$this->saveResource("lang/language.list", false);
 
+		//Load config file
 		$this->saveDefaultConfig();
 		$this->reloadConfig();
 
+		//Load language file
 		$this->language = new PluginLang($this, $this->getConfig()->getNested("settings.language"));
 		$this->getLogger()->info($this->language->translateString("language.selected", [$this->language->getName(), $this->language->getLang()]));
 
+		//Register chunk loaders
 		/** @var string[][] $configData */
 		$configData = $this->getConfig()->getAll();
 		foreach($configData as $worldName => $chunks){
@@ -71,6 +75,7 @@ class ChunkLoader extends PluginBase{
 			}
 		}
 
+		//Register main command
 		if($this->command == null){
 			$this->command = new PoolCommand($this, 'chunkloader');
 			$this->command->createSubCommand(RegisterSubcommand::class);
