@@ -65,7 +65,8 @@ class ChunkLoader extends PluginBase{
 		$this->reloadConfig();
 
 		//Load language file
-		$this->language = new PluginLang($this, $this->getConfig()->getNested("settings.language"));
+		$config = $this->getConfig();
+		$this->language = new PluginLang($this, $config->getNested("settings.language"));
 		$this->getLogger()->info($this->language->translateString("language.selected", [$this->language->getName(), $this->language->getLang()]));
 
 		//Register chunk loaders
@@ -84,9 +85,9 @@ class ChunkLoader extends PluginBase{
 		}
 
 		//Register main command
-		$this->command = new PluginCommand($this->getConfig()->getNested("command.name"), $this);
+		$this->command = new PluginCommand($config->getNested("command.name"), $this);
 		$this->command->setPermission("chunkloader.cmd");
-		$this->command->setAliases($this->getConfig()->getNested("command.aliases"));
+		$this->command->setAliases($config->getNested("command.aliases"));
 		$this->command->setUsage($this->language->translateString("commands.chunkloader.usage"));
 		$this->command->setDescription($this->language->translateString("commands.chunkloader.description"));
 		$this->getServer()->getCommandMap()->register($this->getName(), $this->command);
