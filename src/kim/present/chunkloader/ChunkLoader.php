@@ -11,6 +11,7 @@ use kim\present\chunkloader\lang\PluginLang;
 use kim\present\chunkloader\level\PluginChunkLoader;
 use pocketmine\command\PluginCommand;
 use pocketmine\level\Level;
+use pocketmine\permission\Permission;
 use pocketmine\plugin\PluginBase;
 
 class ChunkLoader extends PluginBase{
@@ -98,6 +99,20 @@ class ChunkLoader extends PluginBase{
 			self::UNREGISTER => new UnregisterSubcommand($this),
 			self::LIST => new ListSubcommand($this)
 		];
+
+		//Load permission's default value from config
+		$permissions = $this->getServer()->getPluginManager()->getPermissions();
+		$defaultValue = $config->getNested("permission.main");
+		if($defaultValue !== null){
+			$permissions["chunkloader.cmd"]->setDefault(Permission::getByName($config->getNested("permission.main")));
+		}
+		foreach($this->subcommands as $key => $subcommand){
+			$label = $subcommand->getLabel();
+			$defaultValue = $config->getNested("permission.children.{$label}");
+			if($defaultValue !== null){
+				$permissions["chunkloader.cmd.{$label}"]->setDefault(Permission::getByName($defaultValue));
+			}
+		}
 	}
 
 	/**

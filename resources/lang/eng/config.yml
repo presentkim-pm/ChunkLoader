@@ -29,3 +29,16 @@ command:
     list:
       name: "List"
       aliases: ["l"]
+
+
+permission:
+  #Permission of main command
+  #You can change this to be what you want
+  main: "op"
+
+  children:
+    #Permission of subcommands
+    #Same as Permission of main command setting
+    register: "op"
+    unregister: "op"
+    list: "op"
