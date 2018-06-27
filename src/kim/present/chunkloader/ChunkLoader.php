@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace kim\present\chunkloader;
 
-use kim\present\chunkloader\command\PoolCommand;
-use kim\present\chunkloader\command\subcommands\{
-	ListSubcommand, RegisterSubcommand, UnregisterSubcommand
+use kim\present\chunkloader\command\{
+	ListSubcommand, RegisterSubcommand, Subcommand, UnregisterSubcommand
 };
 use kim\present\chunkloader\lang\PluginLang;
 use kim\present\chunkloader\level\PluginChunkLoader;
+use pocketmine\command\PluginCommand;
 use pocketmine\level\Level;
 use pocketmine\plugin\PluginBase;
 
 class ChunkLoader extends PluginBase{
+	public const REGISTER = 0;
+	public const UNREGISTER = 1;
+	public const LIST = 2;
 	/**
 	 * @var ChunkLoader
 	 */
@@ -32,9 +35,14 @@ class ChunkLoader extends PluginBase{
 	private $language;
 
 	/**
-	 * @var PoolCommand
+	 * @var PluginCommand
 	 */
 	private $command;
+
+	/**
+	 * @var Subcommand[]
+	 */
+	private $subcommands;
 
 	/**
 	 * @var PluginChunkLoader
@@ -76,16 +84,19 @@ class ChunkLoader extends PluginBase{
 		}
 
 		//Register main command
-		if($this->command == null){
-			$this->command = new PoolCommand($this, 'chunkloader');
-			$this->command->createSubCommand(RegisterSubcommand::class);
-			$this->command->createSubCommand(UnregisterSubcommand::class);
-			$this->command->createSubCommand(ListSubcommand::class);
-		}
-		if($this->command->isRegistered()){
-			$this->getServer()->getCommandMap()->unregister($this->command);
-		}
-		$this->getServer()->getCommandMap()->register(strtolower($this->getName()), $this->command);
+		$this->command = new PluginCommand($this->getConfig()->getNested("command.name"), $this);
+		$this->command->setPermission("chunkloader.cmd");
+		$this->command->setAliases($this->getConfig()->getNested("command.aliases"));
+		$this->command->setUsage($this->language->translateString("commands.chunkloader.usage"));
+		$this->command->setDescription($this->language->translateString("commands.chunkloader.description"));
+		$this->getServer()->getCommandMap()->register($this->getName(), $this->command);
+
+		//Register subcommands
+		$this->subcommands = [
+			self::REGISTER => new RegisterSubcommand($this),
+			self::UNREGISTER => new UnregisterSubcommand($this),
+			self::LIST => new ListSubcommand($this)
+		];
 	}
 
 	/**
