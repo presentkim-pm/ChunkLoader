@@ -4,7 +4,7 @@
 [![release](https://img.shields.io/github/release/PresentKim/ChunkLoader-PMMP.svg?label=Release)](https://github.com/PresentKim/ChunkLoader-PMMP/releases/latest) [![download](https://img.shields.io/github/downloads/PresentKim/ChunkLoader-PMMP/total.svg?label=Download)](https://github.com/PresentKim/ChunkLoader-PMMP/releases/latest)
 
 
-A plugin add chunk loader for PocketMine-MP
+Load the chunk you want all the time!
 
 <br/><br/>
 
