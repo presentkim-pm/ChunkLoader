@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace kim\present\chunkloader\command;
 
-use kim\present\chunkloader\util\Utils;
 use kim\present\chunkloader\ChunkLoader;
+use kim\present\chunkloader\util\Utils;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 
@@ -58,8 +58,8 @@ abstract class SubCommand{
 		$this->strId = "commands.{$owner->uname}.{$label}";
 		$this->permission = "{$owner->uname}.cmd.{$label}";
 
-		$this->label = $this->plugin->getLanguage()->translateString($this->strId);
-		$this->aliases = $this->plugin->getLanguage()->getArray("{$this->strId}.aliases");
+		$this->label = $this->plugin->getConfig()->getNested("command.children.{$label}.name");
+		$this->aliases = $this->plugin->getConfig()->getNested("command.children.{$label}.aliases");
 		$this->usage = $this->translate('usage');
 	}
 

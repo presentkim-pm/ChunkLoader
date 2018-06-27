@@ -51,8 +51,10 @@ class ChunkLoader extends PluginBase{
 		if(!file_exists($dataFolder)){
 			mkdir($dataFolder, 0777, true);
 		}
-		$this->language = new PluginLang($this, $this->getServer()->getLanguage()->getLang());
 		$this->reloadConfig();
+
+		$this->language = new PluginLang($this, $this->getConfig()->getNested("settings.language"));
+		$this->getLogger()->info($this->language->translateString("language.selected", [$this->language->getName(), $this->language->getLang()]));
 
 		/** @var string[][] $configData */
 		$configData = $this->getConfig()->getAll();

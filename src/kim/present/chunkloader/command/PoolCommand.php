@@ -26,7 +26,7 @@ class PoolCommand extends PluginCommand implements CommandExecutor{
 	 * @param SubCommand[] $subCommands
 	 */
 	public function __construct(ChunkLoader $owner, string $name, SubCommand ...$subCommands){
-		parent::__construct($owner->getLanguage()->translateString("commands.{$name}"), $owner);
+		parent::__construct($owner->getConfig()->getNested("command.name"), $owner);
 		$this->setExecutor($this);
 
 		$this->uname = $name;
@@ -34,10 +34,7 @@ class PoolCommand extends PluginCommand implements CommandExecutor{
 
 		$this->description = $owner->getLanguage()->translateString("commands.{$this->uname}.description");
 		$this->usageMessage = $this->getUsage(new ConsoleCommandSender());
-		$aliases = $owner->getLanguage()->getArray("commands.{$this->uname}.aliases");
-		if(is_array($aliases)){
-			$this->setAliases($aliases);
-		}
+		$this->setAliases($owner->getConfig()->getNested("command.aliases"));
 
 		$this->subCommands = $subCommands;
 	}
