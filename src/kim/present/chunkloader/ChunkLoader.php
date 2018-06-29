@@ -7,10 +7,17 @@ namespace kim\present\chunkloader;
 use kim\present\chunkloader\command\{
 	ListSubcommand, RegisterSubcommand, Subcommand, UnregisterSubcommand
 };
+use kim\present\chunkloader\data\ChunkDataMap;
 use kim\present\chunkloader\lang\PluginLang;
 use kim\present\chunkloader\level\PluginChunkLoader;
+use pocketmine\command\Command;
+use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
 use pocketmine\level\Level;
+use pocketmine\nbt\{
+	BigEndianNBTStream, NBT
+};
+use pocketmine\nbt\tag\ListTag;
 use pocketmine\permission\Permission;
 use pocketmine\plugin\PluginBase;
 
@@ -18,6 +25,7 @@ class ChunkLoader extends PluginBase{
 	public const REGISTER = 0;
 	public const UNREGISTER = 1;
 	public const LIST = 2;
+
 	/**
 	 * @var ChunkLoader
 	 */
@@ -50,6 +58,11 @@ class ChunkLoader extends PluginBase{
 	 */
 	private $chunkLoader;
 
+	/**
+	 * @var ChunkDataMap[]
+	 */
+	private $dataMaps = [];
+
 	public function onLoad() : void{
 		self::$instance = $this;
 		$this->chunkLoader = new PluginChunkLoader($this);
@@ -70,18 +83,19 @@ class ChunkLoader extends PluginBase{
 		$this->language = new PluginLang($this, $config->getNested("settings.language"));
 		$this->getLogger()->info($this->language->translateString("language.selected", [$this->language->getName(), $this->language->getLang()]));
 
-		//Register chunk loaders
-		/** @var string[][] $configData */
-		$configData = $this->getConfig()->getAll();
-		foreach($configData as $worldName => $chunks){
-			$level = $this->getServer()->getLevelByName($worldName);
-			if($level === null){
-				$this->getLogger()->error("{$worldName} is invalid world name");
-			}else{
-				foreach($chunks as $key => $chunkHash){
-					Level::getXZ((int) $chunkHash, $chunkX, $chunkZ);
-					$level->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
+		//Load registered chunk map
+		if(file_exists($file = "{$this->getDataFolder()}data.dat")){
+			$namedTag = (new BigEndianNBTStream())->readCompressed(file_get_contents($file));
+			if($namedTag instanceof ListTag){
+				/**
+				 * @var string  $worldName
+				 * @var ListTag $mapTag
+				 */
+				foreach($namedTag as $worldName => $mapTag){
+					$this->dataMaps[$worldName] = ChunkDataMap::nbtDeserialize($mapTag);
 				}
+			}else{
+				$this->getLogger()->error("The file is not in the NBT-CompoundTag format : $file");
 			}
 		}
 
@@ -115,6 +129,20 @@ class ChunkLoader extends PluginBase{
 		}
 	}
 
+	public function onDisable() : void{
+		//Save registered chunk map
+		$value = [];
+		foreach($this->dataMaps as $worldName => $chunkDataMap){
+			if(!empty($chunkDataMap->getAll())){
+				$value[] = $chunkDataMap->nbtSerialize();
+			}
+		}
+		if(!empty($value)){
+			$namedTag = new ListTag("ChunkLoader", $value, NBT::TAG_List);
+			file_put_contents("{$this->getDataFolder()}data.dat", (new BigEndianNBTStream())->writeCompressed($namedTag));
+		}
+	}
+
 	/**
 	 * @Override for multilingual support of the config file
 	 *
@@ -136,58 +164,70 @@ class ChunkLoader extends PluginBase{
 	}
 
 	/**
-	 * @param int   $chunkX
-	 * @param int   $chunkZ
-	 * @param Level $level
+	 * @param string $worldName
 	 *
-	 * @return bool true if registered chunk
+	 * @return ChunkDataMap
 	 */
-	public function registerChunk(int $chunkX, int $chunkZ, Level $level) : bool{
-		$config = $this->getConfig();
+	public function getChunkDataMap(string $worldName) : ChunkDataMap{
+		if(!isset($this->dataMaps[$worldName])){
+			$this->dataMaps[$worldName] = new ChunkDataMap($worldName);
+		}
+		return $this->dataMaps[$worldName];
+	}
 
-		$chunkHash = (string) Level::chunkHash($chunkX, $chunkZ);
-		/** @var string[] $chunks */
-		$chunks = $config->get($worldName = $level->getFolderName(), []);
-		if(in_array($chunkHash, $chunks)){
-			return false;
+	/**
+	 * @param ChunkDataMap $chunkDataMap
+	 */
+	public function setChunkDataMap(ChunkDataMap $chunkDataMap) : void{
+		$level = $this->getServer()->getLevelByName($worldName = $chunkDataMap->getWorldName());
+		if($level === null){
+			$this->dataMaps[$worldName] = $chunkDataMap;
 		}else{
-			$chunks[] = $chunkHash;
-			$config->set($worldName, array_values($chunks));
+			//Unregister chunk loaders from old chunk data map
+			if(isset($this->dataMaps[$worldName])){
+				foreach($this->dataMaps[$worldName]->getAll() as $key => $chunkHash){
+					Level::getXZ($chunkHash, $chunkX, $chunkZ);
+					$level->unregisterChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
 
-			$level->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
-			return true;
+				}
+			}
+			//Register chunk loaders from new chunk data map
+			$this->dataMaps[$worldName] = $chunkDataMap;
+			foreach($this->dataMaps[$worldName]->getAll() as $key => $chunkHash){
+				Level::getXZ($chunkHash, $chunkX, $chunkZ);
+				$level->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
+			}
 		}
 	}
 
 	/**
-	 * @param int   $chunkX
-	 * @param int   $chunkZ
-	 * @param Level $level
+	 * @param int    $chunkX
+	 * @param int    $chunkZ
+	 * @param string $worldName
 	 *
-	 * @return bool true if unregistered chunk
+	 * @return bool true if the chunk registered successfully, false if not.
 	 */
-	public function unregisterChunk(int $chunkX, int $chunkZ, Level $level) : bool{
-		$config = $this->getConfig();
-
-		$chunkHash = (string) Level::chunkHash($chunkX, $chunkZ);
-		/** @var string[] $chunks */
-		$chunks = $config->get($worldName = $level->getFolderName());
-		if($chunks === false){
-			return false;
+	public function registerChunk(int $chunkX, int $chunkZ, string $worldName) : bool{
+		$level = $this->getServer()->getLevelByName($worldName);
+		if($level !== null){
+			$level->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
 		}
-		if(in_array($chunkHash, $chunks)){
-			unset($chunks[array_search($chunkHash, $chunks)]);
-			if(count($chunks) === 0){
-				$config->remove($worldName);
-			}else{
-				$config->set($worldName, array_values($chunks));
-			}
+		return $this->getChunkDataMap($worldName)->addChunk($chunkX, $chunkZ);
+	}
 
+	/**
+	 * @param int    $chunkX
+	 * @param int    $chunkZ
+	 * @param string $worldName
+	 *
+	 * @return bool true if the chunk unregistered successfully, false if not.
+	 */
+	public function unregisterChunk(int $chunkX, int $chunkZ, string $worldName) : bool{
+		$level = $this->getServer()->getLevelByName($worldName);
+		if($level !== null){
 			$level->unregisterChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
-			return true;
-		}else{
-			return false;
 		}
+		return $this->getChunkDataMap($worldName)->removeChunk($chunkX, $chunkZ);
 	}
 
 	/**

@@ -63,7 +63,7 @@ class UnregisterSubcommand extends Subcommand{
 			$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.unregister.usage'));
 			return;
 		}
-		if(!$this->plugin->unregisterChunk($chunkX, $chunkZ, $level)){
+		if(!$this->plugin->unregisterChunk($chunkX, $chunkZ, $level->getFolderName())){
 			$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.unregister.failure.notRegistered', [(string) $chunkX, (string) $chunkZ, $level->getFolderName()]));
 		}else{
 			$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.unregister.success', [(string) $chunkX, (string) $chunkZ, $level->getFolderName()]));

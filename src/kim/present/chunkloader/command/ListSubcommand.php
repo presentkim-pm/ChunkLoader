@@ -38,8 +38,7 @@ class ListSubcommand extends Subcommand{
 			$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.list.usage'));
 			return;
 		}
-		/** @var string[] $list */
-		$list = $this->plugin->getConfig()->get($worldName = $level->getFolderName(), []);
+		$list = $this->plugin->getChunkDataMap($worldName = $level->getFolderName())->getAll();
 		$max = ceil(count($list) / 5);
 		$page = 0;
 		if(isset($args[1]) && is_numeric($args[1])){
@@ -52,7 +51,7 @@ class ListSubcommand extends Subcommand{
 		}
 		$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.list.head', [$worldName, (string) ($page + 1), (string) $max]));
 		for($i = $page * 5, $count = count($list), $loopMax = ($page + 1) * 5; $i < $count && $i < $loopMax; $i++){
-			Level::getXZ((int) $list[$i], $chunkX, $chunkZ);
+			Level::getXZ($list[$i], $chunkX, $chunkZ);
 			$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.list.item', [(string) $chunkX, (string) $chunkZ]));
 		}
 	}
