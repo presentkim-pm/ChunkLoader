@@ -87,7 +87,9 @@ abstract class Subcommand{
 	 */
 	public function handle(CommandSender $sender, array $args = []) : void{
 		if($sender->hasPermission($this->permission)){
-			$this->execute($sender, $args);
+			if(!$this->execute($sender, $args)){
+				$sender->sendMessage($this->plugin->getLanguage()->translateString("commands.chunkloader.{$this->label}.usage"));
+			}
 		}else{
 			$sender->sendMessage($this->plugin->getLanguage()->translateString("commands.generic.permission"));
 		}
@@ -96,8 +98,10 @@ abstract class Subcommand{
 	/**
 	 * @param CommandSender $sender
 	 * @param string[]      $args = []
+	 *
+	 * @return bool
 	 */
-	public abstract function execute(CommandSender $sender, array $args = []) : void;
+	public abstract function execute(CommandSender $sender, array $args = []) : bool;
 
 	/**
 	 * @return string

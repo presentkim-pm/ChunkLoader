@@ -46,22 +46,23 @@ class ListSubcommand extends Subcommand{
 	/**
 	 * @param CommandSender $sender
 	 * @param string[]      $args = []
+	 *
+	 * @return bool
 	 */
-	public function execute(CommandSender $sender, array $args = []) : void{
+	public function execute(CommandSender $sender, array $args = []) : bool{
 		//Get world name from args or player
 		$worldName = null;
 		if(isset($args[0])){
 			$level = Server::getInstance()->getLevelByName($args[0]);
 			if($level === null){
 				$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.list.failure.invalidWorld', [$args[0]]));
-				return;
+				return true;
 			}
 			$worldName = $args[0];
 		}elseif($sender instanceof Player){
 			$worldName = $sender->getLevel()->getFolderName();
 		}else{
-			$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.list.usage'));
-			return;
+			return false;
 		}
 
 		//Make chunkhash list for show command
@@ -84,5 +85,6 @@ class ListSubcommand extends Subcommand{
 				$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.list.item', [(string) $chunkX, (string) $chunkZ]));
 			}
 		}
+		return true;
 	}
 }

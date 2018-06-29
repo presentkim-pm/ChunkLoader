@@ -45,45 +45,44 @@ class RegisterSubcommand extends Subcommand{
 	/**
 	 * @param CommandSender $sender
 	 * @param string[]      $args = []
+	 *
+	 * @return bool
 	 */
-	public function execute(CommandSender $sender, array $args = []) : void{
+	public function execute(CommandSender $sender, array $args = []) : bool{
 		if(isset($args[0])){
 			if(!is_numeric($args[0])){
 				$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.generic.num.notNumber', [$args[0]]));
-				return;
+				return true;
 			}else{
 				$chunkX = (int) $args[0];
 			}
 		}elseif($sender instanceof Player){
 			$chunkX = $sender->x >> 4;
 		}else{
-			$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.register.usage'));
-			return;
+			return false;
 		}
 		if(isset($args[1])){
 			if(!is_numeric($args[1])){
 				$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.generic.num.notNumber', [$args[1]]));
-				return;
+				return true;
 			}else{
 				$chunkZ = (int) $args[1];
 			}
 		}elseif($sender instanceof Player){
 			$chunkZ = $sender->z >> 4;
 		}else{
-			$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.register.usage'));
-			return;
+			return false;
 		}
 		if(isset($args[2])){
 			$level = Server::getInstance()->getLevelByName($args[2]);
 			if($level === null){
 				$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.register.failure.invalidWorld', [$args[2]]));
-				return;
+				return true;
 			}
 		}elseif($sender instanceof Player){
 			$level = $sender->getLevel();
 		}else{
-			$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.register.usage'));
-			return;
+			return false;
 		}
 		if(!$level->isChunkGenerated($chunkX, $chunkZ)){
 			$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.register.failure.notGenerated', [(string) $chunkX, (string) $chunkZ, $level->getFolderName()]));
@@ -92,5 +91,6 @@ class RegisterSubcommand extends Subcommand{
 		}else{
 			$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.register.success', [(string) $chunkX, (string) $chunkZ, $level->getFolderName()]));
 		}
+		return true;
 	}
 }
