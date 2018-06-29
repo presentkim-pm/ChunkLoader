@@ -14,10 +14,10 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
 use pocketmine\level\Level;
-use pocketmine\nbt\{
-	BigEndianNBTStream, NBT
+use pocketmine\nbt\BigEndianNBTStream;
+use pocketmine\nbt\tag\{
+	CompoundTag, ListTag
 };
-use pocketmine\nbt\tag\ListTag;
 use pocketmine\permission\Permission;
 use pocketmine\plugin\PluginBase;
 
@@ -86,7 +86,7 @@ class ChunkLoader extends PluginBase{
 		//Load registered chunk map
 		if(file_exists($file = "{$this->getDataFolder()}data.dat")){
 			$namedTag = (new BigEndianNBTStream())->readCompressed(file_get_contents($file));
-			if($namedTag instanceof ListTag){
+			if($namedTag instanceof CompoundTag){
 				/**
 				 * @var string  $worldName
 				 * @var ListTag $mapTag
@@ -138,7 +138,7 @@ class ChunkLoader extends PluginBase{
 			}
 		}
 		if(!empty($value)){
-			$namedTag = new ListTag("ChunkLoader", $value, NBT::TAG_List);
+			$namedTag = new CompoundTag("ChunkLoader", $value);
 			file_put_contents("{$this->getDataFolder()}data.dat", (new BigEndianNBTStream())->writeCompressed($namedTag));
 		}
 	}
