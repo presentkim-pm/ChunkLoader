@@ -63,21 +63,26 @@ class ListSubcommand extends Subcommand{
 			$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.list.usage'));
 			return;
 		}
-		$list = $this->plugin->getChunkDataMap($worldName)->getAll();
-		$max = ceil(count($list) / 5);
-		$page = 0;
-		if(isset($args[1]) && is_numeric($args[1])){
-			$page = ((int) $args[1]) - 1;
-			if($page < 0){
-				$page = 0;
-			}elseif($page > $max){
-				$page = $max;
-			}
+
+		//Make chunkhash list for show command
+		$chunkHashs = $this->plugin->getChunkDataMap($worldName)->getAll();
+		$list = array_chunk($chunkHashs, $sender->getScreenLineHeight());
+		$max = count($list);
+
+		//Get page number from args
+		if(isset($args[1]) && is_numeric($args[1]) && $args[1] >= 1){
+			$page = min($max, (int) $args[1]);
+		}else{
+			$page = 1;
 		}
-		$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.list.head', [$worldName, (string) ($page + 1), (string) $max]));
-		for($i = $page * 5, $count = count($list), $loopMax = ($page + 1) * 5; $i < $count && $i < $loopMax; $i++){
-			Level::getXZ($list[$i], $chunkX, $chunkZ);
-			$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.list.item', [(string) $chunkX, (string) $chunkZ]));
+
+		//Send list of registered chunk
+		$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.list.head', [$worldName, (string) $page, (string) $max]));
+		if(isset($list[$page - 1])){
+			foreach($list[$page - 1] as $chunkHash){
+				Level::getXZ($chunkHash, $chunkX, $chunkZ);
+				$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.list.item', [(string) $chunkX, (string) $chunkZ]));
+			}
 		}
 	}
 }
