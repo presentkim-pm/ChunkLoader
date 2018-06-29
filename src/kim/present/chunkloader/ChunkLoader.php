@@ -144,6 +144,40 @@ class ChunkLoader extends PluginBase{
 	}
 
 	/**
+	 * @param CommandSender $sender
+	 * @param Command       $command
+	 * @param string        $label
+	 * @param string[]      $args
+	 *
+	 * @return bool
+	 */
+	public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
+		if(empty($args[0])){
+			$targetSubcommand = null;
+			foreach($this->subcommands as $key => $subcommand){
+				if($sender->hasPermission($subcommand->getPermission())){
+					if($targetSubcommand === null){
+						$targetSubcommand = $subcommand;
+					}else{
+						//Filter out cases where more than two command has permission
+						return false;
+					}
+				}
+			}
+			$targetSubcommand->handle($sender);
+		}else{
+			$label = array_shift($args);
+			foreach($this->subcommands as $key => $subcommand){
+				if($subcommand->checkLabel($label)){
+					$subcommand->handle($sender, $args);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * @Override for multilingual support of the config file
 	 *
 	 * @return bool
