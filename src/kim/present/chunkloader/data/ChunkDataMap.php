@@ -113,9 +113,13 @@ class ChunkDataMap{
 	public function nbtSerialize(string $tagName = null) : ListTag{
 		$value = [];
 		foreach($this->chunkHashs as $chunkHash => $alwaysTrue){
-			$vaule[] = new IntTag((string) $chunkHash, $chunkHash);
+			Level::getXZ($chunkHash, $chunkX, $chunkZ);
+			$vaule[] = new ListTag((string) $chunkHash, [
+				new IntTag("ChunkX", $chunkX),
+				new IntTag("ChunkZ", $chunkZ)
+			], NBT::TAG_Int);
 		}
-		return new ListTag($tagName ?? $this->worldName, $value, NBT::TAG_Int);
+		return new ListTag($tagName ?? $this->worldName, $value, NBT::TAG_List);
 	}
 
 	/**
@@ -125,8 +129,9 @@ class ChunkDataMap{
 	 */
 	public static function nbtDeserialize(ListTag $tag) : ChunkDataMap{
 		$chunkHashs = [];
+		/** @var ListTag $chunkHashTag */
 		foreach($tag as $key => $chunkHashTag){
-			$chunkHashs[] = $chunkHashTag->getValue();
+			$chunkHashs[] = Level::chunkHash(...$chunkHashTag->getAllValues());
 		}
 		return new ChunkDataMap($tag->getName(), $chunkHashs);
 	}
