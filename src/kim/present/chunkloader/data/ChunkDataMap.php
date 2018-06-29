@@ -114,9 +114,9 @@ class ChunkDataMap{
 		$value = [];
 		foreach($this->chunkHashs as $chunkHash => $alwaysTrue){
 			Level::getXZ($chunkHash, $chunkX, $chunkZ);
-			$value[] = new ListTag((string) $chunkHash, [
-				new IntTag("ChunkX", $chunkX),
-				new IntTag("ChunkZ", $chunkZ)
+			$value[] = new ListTag("", [
+				new IntTag("", $chunkX),
+				new IntTag("", $chunkZ)
 			], NBT::TAG_Int);
 		}
 		return new ListTag($tagName ?? $this->worldName, $value, NBT::TAG_List);
