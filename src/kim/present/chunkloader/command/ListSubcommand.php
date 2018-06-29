@@ -48,19 +48,22 @@ class ListSubcommand extends Subcommand{
 	 * @param string[]      $args = []
 	 */
 	public function execute(CommandSender $sender, array $args = []) : void{
+		//Get world name from args or player
+		$worldName = null;
 		if(isset($args[0])){
 			$level = Server::getInstance()->getLevelByName($args[0]);
 			if($level === null){
 				$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.list.failure.invalidWorld', [$args[0]]));
 				return;
 			}
+			$worldName = $args[0];
 		}elseif($sender instanceof Player){
-			$level = $sender->getLevel();
+			$worldName = $sender->getLevel()->getFolderName();
 		}else{
 			$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.list.usage'));
 			return;
 		}
-		$list = $this->plugin->getChunkDataMap($worldName = $level->getFolderName())->getAll();
+		$list = $this->plugin->getChunkDataMap($worldName)->getAll();
 		$max = ceil(count($list) / 5);
 		$page = 0;
 		if(isset($args[1]) && is_numeric($args[1])){
