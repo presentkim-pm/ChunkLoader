@@ -32,6 +32,7 @@ use kim\present\chunkloader\command\{
 use kim\present\chunkloader\data\ChunkDataMap;
 use kim\present\chunkloader\lang\PluginLang;
 use kim\present\chunkloader\level\PluginChunkLoader;
+use kim\present\chunkloader\task\CheckUpdateAsyncTask;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
@@ -88,6 +89,9 @@ class ChunkLoader extends PluginBase{
 	public function onLoad() : void{
 		self::$instance = $this;
 		$this->chunkLoader = new PluginChunkLoader($this);
+
+		//Check latest version
+		$this->getServer()->getAsyncPool()->submitTask(new CheckUpdateAsyncTask());
 	}
 
 	public function onEnable() : void{
