@@ -32,7 +32,6 @@ use pocketmine\Server;
 
 class CheckUpdateAsyncTask extends AsyncTask{
 	private const RELEASE_URL = "https://api.github.com/repos/PresentKim/ChunkLoader-PMMP/releases/latest";
-	private const CONTEXT_OPTION = ["http" => ["header" => "User-Agent: true"]];
 
 	/**
 	 * @var string|null Latest version of plugin
@@ -51,16 +50,23 @@ class CheckUpdateAsyncTask extends AsyncTask{
 	 * Get file-name and download-url of latest release, Store to $fileName, $downloadURL
 	 */
 	public function onRun() : void{
-		if(ini_get("allow_url_fopen")){
-			$latestRelease = file_get_contents(self::RELEASE_URL, false, stream_context_create(self::CONTEXT_OPTION));
-			if($latestRelease !== false){
-				$jsonData = json_decode($latestRelease, true);
-				$this->latestVersion = $jsonData["tag_name"];
-				foreach($jsonData["assets"] as $key => $assetData){
-					if(substr_compare($assetData["name"], ".phar", -strlen(".phar")) === 0){ //ends with ".phar"
-						$this->fileName = $assetData["name"];
-						$this->downloadURL = $assetData["browser_download_url"];
-					}
+		curl_setopt_array($curlHandle = curl_init(), [
+			CURLOPT_URL => self::RELEASE_URL,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_SSL_VERIFYHOST => false,
+			CURLOPT_SSL_VERIFYPEER => false,
+			CURLOPT_USERAGENT => "true"
+		]);
+		$response = curl_exec($curlHandle);
+		curl_close($curlHandle);
+
+		if(!empty($response)){
+			$jsonData = json_decode($response, true);
+			$this->latestVersion = $jsonData["tag_name"];
+			foreach($jsonData["assets"] as $key => $assetData){
+				if(substr_compare($assetData["name"], ".phar", -strlen(".phar")) === 0){ //ends with ".phar"
+					$this->fileName = $assetData["name"];
+					$this->downloadURL = $assetData["browser_download_url"];
 				}
 			}
 		}
