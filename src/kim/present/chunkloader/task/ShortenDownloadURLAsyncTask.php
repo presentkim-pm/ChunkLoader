@@ -33,14 +33,10 @@ use pocketmine\Server;
 class ShortenDownloadURLAsyncTask extends AsyncTask{
 	private const URL = "https://git.io";
 
-	/**
-	 * @var string|null File-name and Download-url of latest release
-	 */
+	/** @var string|null File-name and Download-url of latest release */
 	private $fileName, $downloadURL;
 
-	/**
-	 * @var string|null Short url of latest release download
-	 */
+	/** @var string|null Short url of latest release download */
 	private $shortURL = null;
 
 	/**

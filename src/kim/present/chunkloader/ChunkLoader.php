@@ -49,9 +49,7 @@ class ChunkLoader extends PluginBase{
 	public const UNREGISTER = 1;
 	public const LIST = 2;
 
-	/**
-	 * @var ChunkLoader
-	 */
+	/** @var ChunkLoader */
 	private static $instance;
 
 	/**
@@ -61,29 +59,19 @@ class ChunkLoader extends PluginBase{
 		return self::$instance;
 	}
 
-	/**
-	 * @var PluginLang
-	 */
+	/** @var PluginLang */
 	private $language;
 
-	/**
-	 * @var PluginCommand
-	 */
+	/** @var PluginCommand */
 	private $command;
 
-	/**
-	 * @var Subcommand[]
-	 */
+	/** @var Subcommand[] */
 	private $subcommands;
 
-	/**
-	 * @var PluginChunkLoader
-	 */
+	/** @var PluginChunkLoader */
 	private $chunkLoader;
 
-	/**
-	 * @var ChunkDataMap[]
-	 */
+	/** @var ChunkDataMap[] */
 	private $dataMaps = [];
 
 	public function onLoad() : void{

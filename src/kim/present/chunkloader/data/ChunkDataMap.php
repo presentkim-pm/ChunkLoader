@@ -34,14 +34,10 @@ use pocketmine\nbt\tag\{
 };
 
 class ChunkDataMap{
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	protected $worldName;
 
-	/**
-	 * @var bool[] key is (int) chunk hash (all value is `true`)
-	 */
+	/** @var bool[] key is (int) chunk hash (all value is `true`) */
 	protected $chunkHashs = [];
 
 	/**

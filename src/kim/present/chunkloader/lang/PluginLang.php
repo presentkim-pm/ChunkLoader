@@ -30,9 +30,7 @@ use kim\present\chunkloader\ChunkLoader;
 use pocketmine\lang\BaseLang;
 
 class PluginLang extends BaseLang{
-	/**
-	 * @var ChunkLoader
-	 */
+	/** @var ChunkLoader */
 	private $plugin;
 
 	/**

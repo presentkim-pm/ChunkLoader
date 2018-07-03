@@ -37,19 +37,13 @@ class CheckUpdateAsyncTask extends AsyncTask{
 	private const CACHE_DOWNLOAD_URL = "d";
 	private const RELEASE_URL = "https://api.github.com/repos/PresentKim/ChunkLoader-PMMP/releases/latest";
 
-	/**
-	 * @var string|null Latest version of plugin
-	 */
+	/** @var string|null Latest version of plugin */
 	private $latestVersion = null;
 
-	/**
-	 * @var string|null File-name and Download-url of latest release
-	 */
+	/** @var string|null File-name and Download-url of latest release */
 	private $fileName, $downloadURL;
 
-	/**
-	 * @var string Path of latest response cache file
-	 */
+	/** @var string Path of latest response cache file */
 	private $cachePath;
 
 	public function __construct(){
