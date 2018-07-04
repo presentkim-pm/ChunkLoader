@@ -35,14 +35,10 @@ use pocketmine\level\format\Chunk;
 use pocketmine\math\Vector3;
 
 class PluginChunkLoader extends Position implements PMChunkLoader{
-	/**
-	 * @var ChunkLoader
-	 */
+	/** @var ChunkLoader */
 	protected $plugin;
 
-	/**
-	 * @var int
-	 */
+	/** @var int */
 	protected $loaderId = 0;
 
 	/**

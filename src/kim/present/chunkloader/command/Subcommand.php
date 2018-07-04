@@ -30,29 +30,19 @@ use kim\present\chunkloader\ChunkLoader;
 use pocketmine\command\CommandSender;
 
 abstract class Subcommand{
-	/**
-	 * @var ChunkLoader
-	 */
+	/** @var ChunkLoader */
 	protected $plugin;
 
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	protected $label;
 
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private $name;
 
-	/**
-	 * @var string[]
-	 */
+	/** @var string[] */
 	private $aliases;
 
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private $permission;
 
 	/**
