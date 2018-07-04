@@ -74,7 +74,10 @@ class ChunkLoader extends PluginBase{
 	/** @var ChunkDataMap[] */
 	private $dataMaps = [];
 
-	public function onLoad() : void{
+	/**
+	 * Called when the plugin is loaded, before calling onEnable()
+	 */
+	protected function onLoad() : void{
 		self::$instance = $this;
 		$this->chunkLoader = new PluginChunkLoader($this);
 
@@ -82,7 +85,10 @@ class ChunkLoader extends PluginBase{
 		$this->getServer()->getAsyncPool()->submitTask(new CheckUpdateAsyncTask());
 	}
 
-	public function onEnable() : void{
+	/**
+	 * Called when the plugin is enabled
+	 */
+	protected function onEnable() : void{
 		//Save default resources
 		$this->saveResource("lang/eng/lang.ini", false);
 		$this->saveResource("lang/kor/lang.ini", false);
@@ -143,7 +149,11 @@ class ChunkLoader extends PluginBase{
 		}
 	}
 
-	public function onDisable() : void{
+	/**
+	 * Called when the plugin is disabled
+	 * Use this to free open things and finish actions
+	 */
+	protected function onDisable() : void{
 		//Save registered chunk map
 		$value = [];
 		foreach($this->dataMaps as $worldName => $chunkDataMap){
