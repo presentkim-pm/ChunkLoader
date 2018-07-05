@@ -57,23 +57,26 @@ class ShortenDownloadURLAsyncTask extends AsyncTask{
 	 * Get shortened url and store that to $shortURL
 	 */
 	public function onRun() : void{
-		curl_setopt_array($curlHandle = curl_init(), [
-			CURLOPT_URL => self::URL,
-			CURLOPT_POSTFIELDS => [
-				"code" => $this->fileName,
-				"url" => $this->downloadURL
-			],
-			CURLOPT_HEADER => true,
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_SSL_VERIFYHOST => false,
-			CURLOPT_SSL_VERIFYPEER => false
-		]);
-		foreach(explode("\n", curl_exec($curlHandle)) as $key => $line){
-			if(strpos($line, "Location: ") === 0){ //starts with "Location: "
-				$this->shortURL = substr($line, strlen("Location: "));
+		try{
+			curl_setopt_array($curlHandle = curl_init(), [
+				CURLOPT_URL => self::URL,
+				CURLOPT_POSTFIELDS => [
+					"code" => $this->fileName,
+					"url" => $this->downloadURL
+				],
+				CURLOPT_HEADER => true,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_SSL_VERIFYHOST => false,
+				CURLOPT_SSL_VERIFYPEER => false
+			]);
+			foreach(explode("\n", curl_exec($curlHandle)) as $key => $line){
+				if(strpos($line, "Location: ") === 0){ //starts with "Location: "
+					$this->shortURL = substr($line, strlen("Location: "));
+				}
 			}
+			curl_close($curlHandle);
+		}catch(\Exception $exception){
 		}
-		curl_close($curlHandle);
 	}
 
 	/**
