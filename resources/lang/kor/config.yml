@@ -7,7 +7,7 @@ settings:
   #가능한 언어: eng, kor
   language: "kor"
 
-  update-check: "false"
+  update-check: false
 
 
 command:

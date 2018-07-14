@@ -7,7 +7,7 @@ settings:
   #Available: eng, kor
   language: "eng"
 
-  update-check: "false"
+  update-check: false
 
 
 command:
