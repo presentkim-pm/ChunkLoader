@@ -26,21 +26,13 @@ declare(strict_types=1);
 
 namespace kim\present\chunkloader\command;
 
-use kim\present\chunkloader\ChunkLoader;
 use pocketmine\{
 	Player, Server
 };
 use pocketmine\command\CommandSender;
 
 class UnregisterSubcommand extends Subcommand{
-	/**
-	 * DisableSubcommand constructor.
-	 *
-	 * @param ChunkLoader $plugin
-	 */
-	public function __construct(ChunkLoader $plugin){
-		parent::__construct($plugin, "unregister");
-	}
+	public const LABEL = "unregister";
 
 	/**
 	 * @param CommandSender $sender

@@ -26,7 +26,6 @@ declare(strict_types=1);
 
 namespace kim\present\chunkloader\command;
 
-use kim\present\chunkloader\ChunkLoader;
 use pocketmine\{
 	Player, Server
 };
@@ -34,14 +33,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\level\Level;
 
 class ListSubcommand extends Subcommand{
-	/**
-	 * DisableSubcommand constructor.
-	 *
-	 * @param ChunkLoader $plugin
-	 */
-	public function __construct(ChunkLoader $plugin){
-		parent::__construct($plugin, "list");
-	}
+	public const LABEL = "list";
 
 	/**
 	 * @param CommandSender $sender
