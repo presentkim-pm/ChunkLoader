@@ -44,9 +44,15 @@ class PluginLang extends BaseLang{
 		$this->langName = strtolower($lang);
 		$this->plugin = $plugin;
 
+		//Load required language
 		$this->load($lang);
-		if(!self::loadLang($file = $plugin->getDataFolder() . "lang/" . self::FALLBACK_LANGUAGE . "/lang.ini", $this->fallbackLang)){
-			$plugin->getLogger()->error("Missing required language file $file");
+
+		//Load fallback language
+		$resoruce = $plugin->getResource("lang/" . self::FALLBACK_LANGUAGE . "/lang.ini");
+		if($resoruce !== null){
+			$this->fallbackLang = parse_ini_string(stream_get_contents($resoruce), false, INI_SCANNER_RAW);
+		}else{
+			$plugin->getLogger()->error("Missing fallback language file");
 		}
 	}
 
