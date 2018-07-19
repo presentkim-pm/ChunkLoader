@@ -26,21 +26,21 @@ declare(strict_types=1);
 
 namespace kim\present\chunkloader\lang;
 
-use kim\present\chunkloader\ChunkLoader;
 use pocketmine\lang\BaseLang;
+use pocketmine\plugin\PluginBase;
 
 class PluginLang extends BaseLang{
-	/** @var ChunkLoader */
+	/** @var PluginBase */
 	private $plugin;
 
 	/**
 	 * @noinspection PhpMissingParentConstructorInspection
 	 * PluginLang constructor.
 	 *
-	 * @param ChunkLoader $plugin
-	 * @param string      $lang
+	 * @param PluginBase $plugin
+	 * @param string     $lang
 	 */
-	public function __construct(ChunkLoader $plugin, string $lang){
+	public function __construct(PluginBase $plugin, string $lang){
 		$this->langName = strtolower($lang);
 		$this->plugin = $plugin;
 
