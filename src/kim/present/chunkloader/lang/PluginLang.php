@@ -26,7 +26,9 @@ declare(strict_types=1);
 
 namespace kim\present\chunkloader\lang;
 
-use pocketmine\lang\Language;
+use pocketmine\lang\{
+	Language, LanguageNotFoundException
+};
 use pocketmine\plugin\PluginBase;
 
 class PluginLang extends Language{
@@ -63,10 +65,10 @@ class PluginLang extends Language{
 	 */
 	public function load(string $lang) : bool{
 		if($this->isAvailableLanguage($lang)){
-			if(!self::loadLang($file = $this->plugin->getDataFolder() . "lang/" . $this->langName . "/lang.ini", $this->lang)){
-				$this->plugin->getLogger()->error("Missing required language file $file");
-			}else{
-				return true;
+			try{
+				$this->lang = self::loadLang($this->plugin->getDataFolder() . "lang/", "{$this->langName}/lang");
+			}catch(LanguageNotFoundException $e){
+				$this->plugin->getLogger()->error("Missing required language file ({$this->langName})");
 			}
 		}
 		return false;
