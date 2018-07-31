@@ -26,10 +26,10 @@ declare(strict_types=1);
 
 namespace kim\present\chunkloader\lang;
 
-use pocketmine\lang\BaseLang;
+use pocketmine\lang\Language;
 use pocketmine\plugin\PluginBase;
 
-class PluginLang extends BaseLang{
+class PluginLang extends Language{
 	/** @var PluginBase */
 	private $plugin;
 
