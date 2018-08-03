@@ -76,7 +76,7 @@ abstract class Subcommand{
 	public function handle(CommandSender $sender, array $args = []) : void{
 		if($sender->hasPermission($this->permission)){
 			if(!$this->execute($sender, $args)){
-				$sender->sendMessage($this->plugin->getLanguage()->translateString("commands.chunkloader.{$this->label}.usage"));
+				$sender->sendMessage($this->plugin->getLanguage()->translateString("commands.chunkloader." . $this::LABEL . ".usage"));
 			}
 		}else{
 			$sender->sendMessage($this->plugin->getLanguage()->translateString("commands.generic.permission"));
