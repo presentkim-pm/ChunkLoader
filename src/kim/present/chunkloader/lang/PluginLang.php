@@ -26,14 +26,22 @@ declare(strict_types=1);
 
 namespace kim\present\chunkloader\lang;
 
-use pocketmine\lang\{
-	Language, LanguageNotFoundException
-};
 use pocketmine\plugin\PluginBase;
 
-class PluginLang extends Language{
+class PluginLang{
+	public const FALLBACK_LANGUAGE = "eng";
+
+	/** @var string */
+	protected $langName;
+
 	/** @var PluginBase */
-	private $plugin;
+	protected $plugin;
+
+	/** @var string[] */
+	protected $lang = [];
+
+	/** @var string[] */
+	protected $fallbackLang = [];
 
 	/**
 	 * @noinspection PhpMissingParentConstructorInspection
@@ -52,7 +60,7 @@ class PluginLang extends Language{
 		//Load fallback language
 		$resoruce = $plugin->getResource("lang/" . self::FALLBACK_LANGUAGE . "/lang.ini");
 		if($resoruce !== null){
-			$this->fallbackLang = parse_ini_string(stream_get_contents($resoruce), false, INI_SCANNER_RAW);
+			$this->fallbackLang = array_map('stripcslashes', parse_ini_string(stream_get_contents($resoruce), false, INI_SCANNER_RAW));
 		}else{
 			$plugin->getLogger()->error("Missing fallback language file");
 		}
@@ -65,13 +73,42 @@ class PluginLang extends Language{
 	 */
 	public function load(string $lang) : bool{
 		if($this->isAvailableLanguage($lang)){
-			try{
-				$this->lang = self::loadLang($this->plugin->getDataFolder() . "lang/", "{$this->langName}/lang");
-			}catch(LanguageNotFoundException $e){
+			$file = "{$this->plugin->getDataFolder()}lang/{$this->langName}/lang.ini";
+			if(file_exists($file)){
+				$this->lang = array_map('stripcslashes', parse_ini_file($file, false, INI_SCANNER_RAW));
+			}else{
 				$this->plugin->getLogger()->error("Missing required language file ({$this->langName})");
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * @param string   $str
+	 * @param string[] $params
+	 *
+	 * @return string
+	 */
+	public function translateString(string $str, array $params = []) : string{
+		$str = $this->lang[$str] ?? $this->fallbackLang[$str] ?? $str;
+		foreach($params as $i => $param){
+			$str = str_replace("{%$i}", (string) $param, $str);
+		}
+		return $str;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getName() : string{
+		return $this->translateString("language.name");
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getLang() : string{
+		return $this->langName;
 	}
 
 	/**
@@ -80,7 +117,7 @@ class PluginLang extends Language{
 	 * @return string[]
 	 */
 	public function getAvailableLanguageList() : array{
-		return explode("\n", file_get_contents($this->plugin->getDataFolder() . "lang/language.list"));
+		return explode("\n", file_get_contents("{$this->plugin->getDataFolder()}lang/language.list"));
 	}
 
 	/**
