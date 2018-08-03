@@ -116,7 +116,7 @@ class PluginLang{
 	 *
 	 * @return string[]
 	 */
-	public function getAvailableLanguageList() : array{
+	public function getLanguageList() : array{
 		return explode("\n", file_get_contents("{$this->plugin->getDataFolder()}lang/language.list"));
 	}
 
@@ -126,6 +126,6 @@ class PluginLang{
 	 * @return bool
 	 */
 	public function isAvailableLanguage(string $lang) : bool{
-		return in_array(strtolower($lang), $this->getAvailableLanguageList());
+		return in_array(strtolower($lang), $this->getLanguageList());
 	}
 }
