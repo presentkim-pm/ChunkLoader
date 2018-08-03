@@ -33,9 +33,9 @@ use kim\present\chunkloader\data\ChunkDataMap;
 use kim\present\chunkloader\lang\PluginLang;
 use kim\present\chunkloader\level\PluginChunkLoader;
 use kim\present\chunkloader\task\CheckUpdateAsyncTask;
-use pocketmine\command\Command;
-use pocketmine\command\CommandSender;
-use pocketmine\command\PluginCommand;
+use pocketmine\command\{
+	Command, CommandSender, PluginCommand
+};
 use pocketmine\level\Level;
 use pocketmine\nbt\BigEndianNBTStream;
 use pocketmine\nbt\tag\{
