@@ -84,13 +84,13 @@ class PluginLang{
 	}
 
 	/**
-	 * @param string   $str
+	 * @param string   $id
 	 * @param string[] $params
 	 *
 	 * @return string
 	 */
-	public function translate(string $str, array $params = []) : string{
-		$str = $this->lang[$str] ?? $this->fallbackLang[$str] ?? $str;
+	public function translate(string $id, array $params = []) : string{
+		$str = $this->lang[$id] ?? $this->fallbackLang[$id] ?? $id;
 		foreach($params as $i => $param){
 			$str = str_replace("{%$i}", (string) $param, $str);
 		}
