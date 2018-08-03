@@ -47,7 +47,7 @@ class ListSubcommand extends Subcommand{
 		if(isset($args[0])){
 			$level = Server::getInstance()->getLevelByName($args[0]);
 			if($level === null){
-				$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.list.failure.invalidWorld', [$args[0]]));
+				$sender->sendMessage($this->plugin->getLanguage()->translate('commands.chunkloader.list.failure.invalidWorld', [$args[0]]));
 				return true;
 			}
 			$worldName = $args[0];
@@ -70,11 +70,11 @@ class ListSubcommand extends Subcommand{
 		}
 
 		//Send list of registered chunk
-		$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.list.head', [$worldName, (string) $page, (string) $max]));
+		$sender->sendMessage($this->plugin->getLanguage()->translate('commands.chunkloader.list.head', [$worldName, (string) $page, (string) $max]));
 		if(isset($list[$page - 1])){
 			foreach($list[$page - 1] as $chunkHash){
 				Level::getXZ($chunkHash, $chunkX, $chunkZ);
-				$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.list.item', [(string) $chunkX, (string) $chunkZ]));
+				$sender->sendMessage($this->plugin->getLanguage()->translate('commands.chunkloader.list.item', [(string) $chunkX, (string) $chunkZ]));
 			}
 		}
 		return true;

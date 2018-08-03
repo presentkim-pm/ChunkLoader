@@ -43,7 +43,7 @@ class UnregisterSubcommand extends Subcommand{
 	public function execute(CommandSender $sender, array $args = []) : bool{
 		if(isset($args[0])){
 			if(!is_numeric($args[0])){
-				$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.generic.num.notNumber', [$args[0]]));
+				$sender->sendMessage($this->plugin->getLanguage()->translate('commands.generic.num.notNumber', [$args[0]]));
 				return true;
 			}else{
 				$chunkX = (int) $args[0];
@@ -55,7 +55,7 @@ class UnregisterSubcommand extends Subcommand{
 		}
 		if(isset($args[1])){
 			if(!is_numeric($args[1])){
-				$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.generic.num.notNumber', [$args[1]]));
+				$sender->sendMessage($this->plugin->getLanguage()->translate('commands.generic.num.notNumber', [$args[1]]));
 				return true;
 			}else{
 				$chunkZ = (int) $args[1];
@@ -68,7 +68,7 @@ class UnregisterSubcommand extends Subcommand{
 		if(isset($args[2])){
 			$level = Server::getInstance()->getLevelByName($args[2]);
 			if($level === null){
-				$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.unregister.failure.invalidWorld', [$args[2]]));
+				$sender->sendMessage($this->plugin->getLanguage()->translate('commands.chunkloader.unregister.failure.invalidWorld', [$args[2]]));
 				return true;
 			}
 		}elseif($sender instanceof Player){
@@ -77,9 +77,9 @@ class UnregisterSubcommand extends Subcommand{
 			return false;
 		}
 		if(!$this->plugin->unregisterChunk($chunkX, $chunkZ, $level->getFolderName())){
-			$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.unregister.failure.notRegistered', [(string) $chunkX, (string) $chunkZ, $level->getFolderName()]));
+			$sender->sendMessage($this->plugin->getLanguage()->translate('commands.chunkloader.unregister.failure.notRegistered', [(string) $chunkX, (string) $chunkZ, $level->getFolderName()]));
 		}else{
-			$sender->sendMessage($this->plugin->getLanguage()->translateString('commands.chunkloader.unregister.success', [(string) $chunkX, (string) $chunkZ, $level->getFolderName()]));
+			$sender->sendMessage($this->plugin->getLanguage()->translate('commands.chunkloader.unregister.success', [(string) $chunkX, (string) $chunkZ, $level->getFolderName()]));
 		}
 	}
 }

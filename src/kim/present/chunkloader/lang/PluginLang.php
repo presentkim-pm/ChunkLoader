@@ -89,7 +89,7 @@ class PluginLang{
 	 *
 	 * @return string
 	 */
-	public function translateString(string $str, array $params = []) : string{
+	public function translate(string $str, array $params = []) : string{
 		$str = $this->lang[$str] ?? $this->fallbackLang[$str] ?? $str;
 		foreach($params as $i => $param){
 			$str = str_replace("{%$i}", (string) $param, $str);
@@ -101,7 +101,7 @@ class PluginLang{
 	 * @return string
 	 */
 	public function getName() : string{
-		return $this->translateString("language.name");
+		return $this->translate("language.name");
 	}
 
 	/**
