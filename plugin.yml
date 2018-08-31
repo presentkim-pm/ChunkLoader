@@ -4,7 +4,6 @@ main: kim\present\chunkloader\ChunkLoader
 version: 2.2.3
 api: [3.0.0, 3.0.0-ALPHA12, 4.0.0]
 author: PresentKim
-website: https://github.com/PresentKim/ChunkLoader-PMMP
 description: Load the chunk you want all the time!
 
 permissions:
