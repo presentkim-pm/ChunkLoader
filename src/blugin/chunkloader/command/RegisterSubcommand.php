@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace blugin\chunkloader\command;
 
 use pocketmine\command\CommandSender;
+use pocketmine\player\Player;
 use pocketmine\Server;
 
 class RegisterSubcommand extends Subcommand{
@@ -48,7 +49,7 @@ class RegisterSubcommand extends Subcommand{
                 $chunkX = (int) $args[0];
             }
         }elseif($sender instanceof Player){
-            $chunkX = $sender->x >> 4;
+            $chunkX = $sender->getPosition()->getX() >> 4;
         }else{
             return false;
         }
@@ -60,38 +61,38 @@ class RegisterSubcommand extends Subcommand{
                 $chunkZ = (int) $args[1];
             }
         }elseif($sender instanceof Player){
-            $chunkZ = $sender->z >> 4;
+            $chunkZ = $sender->getPosition()->getZ() >> 4;
         }else{
             return false;
         }
         if(isset($args[2])){
-            $level = Server::getInstance()->getLevelByName($args[2]);
-            if($level === null){
+            $world = Server::getInstance()->getWorldManager()->getWorldByName($args[2]);
+            if($world === null){
                 $sender->sendMessage($this->plugin->getLanguage()->translate("commands.chunkloader.register.failure.invalidWorld", [$args[2]]));
                 return true;
             }
         }elseif($sender instanceof Player){
-            $level = $sender->getLevel();
+            $world = $sender->getWorld();
         }else{
             return false;
         }
-        if(!$level->isChunkGenerated($chunkX, $chunkZ)){
+        if(!$world->isChunkGenerated($chunkX, $chunkZ)){
             $sender->sendMessage($this->plugin->getLanguage()->translate("commands.chunkloader.register.failure.notGenerated", [
                 (string) $chunkX,
                 (string) $chunkZ,
-                $level->getFolderName()
+                $world->getFolderName()
             ]));
-        }elseif(!$this->plugin->registerChunk($chunkX, $chunkZ, $level->getFolderName())){
+        }elseif(!$this->plugin->registerChunk($chunkX, $chunkZ, $world->getFolderName())){
             $sender->sendMessage($this->plugin->getLanguage()->translate("commands.chunkloader.register.failure.already", [
                 (string) $chunkX,
                 (string) $chunkZ,
-                $level->getFolderName()
+                $world->getFolderName()
             ]));
         }else{
             $sender->sendMessage($this->plugin->getLanguage()->translate("commands.chunkloader.register.success", [
                 (string) $chunkX,
                 (string) $chunkZ,
-                $level->getFolderName()
+                $world->getFolderName()
             ]));
         }
         return true;

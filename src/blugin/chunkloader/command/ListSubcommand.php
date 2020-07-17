@@ -28,8 +28,9 @@ declare(strict_types=1);
 namespace blugin\chunkloader\command;
 
 use pocketmine\command\CommandSender;
-use pocketmine\level\Level;
+use pocketmine\player\Player;
 use pocketmine\Server;
+use pocketmine\world\World;
 
 class ListSubcommand extends Subcommand{
     public const LABEL = "list";
@@ -44,14 +45,14 @@ class ListSubcommand extends Subcommand{
         //Get world name from args or player
         $worldName = null;
         if(isset($args[0])){
-            $level = Server::getInstance()->getLevelByName($args[0]);
-            if($level === null){
+            $world = Server::getInstance()->getWorldManager()->getWorldByName($args[0]);
+            if($world === null){
                 $sender->sendMessage($this->plugin->getLanguage()->translate("commands.chunkloader.list.failure.invalidWorld", [$args[0]]));
                 return true;
             }
             $worldName = $args[0];
         }elseif($sender instanceof Player){
-            $worldName = $sender->getLevel()->getFolderName();
+            $worldName = $sender->getWorld()->getFolderName();
         }else{
             return false;
         }
@@ -76,7 +77,7 @@ class ListSubcommand extends Subcommand{
         ]));
         if(isset($list[$page - 1])){
             foreach($list[$page - 1] as $chunkHash){
-                Level::getXZ($chunkHash, $chunkX, $chunkZ);
+                World::getXZ($chunkHash, $chunkX, $chunkZ);
                 $sender->sendMessage($this->plugin->getLanguage()->translate("commands.chunkloader.list.item", [
                     (string) $chunkX,
                     (string) $chunkZ

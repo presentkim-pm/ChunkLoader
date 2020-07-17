@@ -25,22 +25,17 @@
 
 declare(strict_types=1);
 
-namespace blugin\chunkloader\level;
+namespace blugin\chunkloader\world;
 
 use blugin\chunkloader\ChunkLoader;
 use pocketmine\block\Block;
-use pocketmine\level\ChunkLoader as PMChunkLoader;
-use pocketmine\level\format\Chunk;
-use pocketmine\level\Level;
-use pocketmine\level\Position;
 use pocketmine\math\Vector3;
+use pocketmine\world\ChunkLoader as PMChunkLoader;
+use pocketmine\world\format\Chunk;
 
-class PluginChunkLoader extends Position implements PMChunkLoader{
+class PluginChunkLoader extends Vector3 implements PMChunkLoader{
     /** @var ChunkLoader */
     protected $plugin;
-
-    /** @var int */
-    protected $loaderId = 0;
 
     /**
      * PluginChunkLoader constructor.
@@ -48,18 +43,8 @@ class PluginChunkLoader extends Position implements PMChunkLoader{
      * @param ChunkLoader $plugin
      */
     public function __construct(ChunkLoader $plugin){
-        parent::__construct();
+        parent::__construct(0, 0, 0);
         $this->plugin = $plugin;
-        $this->loaderId = Level::generateChunkLoaderId($this);
-    }
-
-    /**
-     * Returns the ChunkLoader id.
-     *
-     * @return int
-     */
-    public function getLoaderId() : int{
-        return $this->loaderId;
     }
 
     /**
@@ -69,15 +54,6 @@ class PluginChunkLoader extends Position implements PMChunkLoader{
      */
     public function isLoaderActive() : bool{
         return $this->plugin->isEnabled();
-    }
-
-    /**
-     * Return a Position instance
-     *
-     * @return Position
-     */
-    public function getPosition() : Position{
-        return $this;
     }
 
     /**

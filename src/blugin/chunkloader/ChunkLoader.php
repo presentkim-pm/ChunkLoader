@@ -33,17 +33,18 @@ use blugin\chunkloader\command\Subcommand;
 use blugin\chunkloader\command\UnregisterSubcommand;
 use blugin\chunkloader\data\ChunkDataMap;
 use blugin\chunkloader\lang\PluginLang;
-use blugin\chunkloader\level\PluginChunkLoader;
+use blugin\chunkloader\world\PluginChunkLoader;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
-use pocketmine\level\Level;
-use pocketmine\nbt\BigEndianNBTStream;
+use pocketmine\nbt\BigEndianNbtSerializer;
+use pocketmine\nbt\NbtDataException;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\ListTag;
-use pocketmine\permission\Permission;
+use pocketmine\nbt\TreeRoot;
 use pocketmine\permission\PermissionManager;
 use pocketmine\plugin\PluginBase;
+use pocketmine\world\World;
 
 class ChunkLoader extends PluginBase{
     public const REGISTER = 0;
@@ -62,9 +63,6 @@ class ChunkLoader extends PluginBase{
 
     /** @var PluginLang */
     private $language;
-
-    /** @var PluginCommand */
-    private $command;
 
     /** @var Subcommand[] */
     private $subcommands;
@@ -106,27 +104,41 @@ class ChunkLoader extends PluginBase{
 
         //Load registered chunk map
         if(file_exists($file = "{$this->getDataFolder()}data.dat")){
-            $namedTag = (new BigEndianNBTStream())->readCompressed(file_get_contents($file));
-            if($namedTag instanceof CompoundTag){
+            $contents = @file_get_contents($file);
+            if($contents === false)
+                throw new \RuntimeException("Failed to read player data file \"$file\" (permission denied?)");
+
+            $decompressed = @zlib_decode($contents);
+            if($decompressed === false){
+                throw new \RuntimeException("Failed to decompress raw data for ChunkLoader");
+            }
+
+            try{
+                $tag = (new BigEndianNbtSerializer())->read($decompressed)->mustGetCompoundTag();
+            }catch(NbtDataException $e){
+                throw new \RuntimeException("Failed to decode NBT data for ChunkLoader");
+            }
+
+            if($tag instanceof CompoundTag){
                 /**
                  * @var string  $worldName
                  * @var ListTag $mapTag
                  */
-                foreach($namedTag as $worldName => $mapTag){
-                    $this->dataMaps[$worldName] = ChunkDataMap::nbtDeserialize($mapTag);
+                foreach($tag as $worldName => $mapTag){
+                    $this->setChunkDataMap(ChunkDataMap::nbtDeserialize($worldName, $mapTag));
                 }
             }else{
-                $this->getLogger()->error("The file is not in the NBT-CompoundTag format : $file");
+                throw new \RuntimeException("The file is not in the NBT-CompoundTag format : $file");
             }
         }
 
         //Register main command
-        $this->command = new PluginCommand($config->getNested("command.name"), $this);
-        $this->command->setPermission("chunkloader.cmd");
-        $this->command->setAliases($config->getNested("command.aliases"));
-        $this->command->setUsage($this->language->translate("commands.chunkloader.usage"));
-        $this->command->setDescription($this->language->translate("commands.chunkloader.description"));
-        $this->getServer()->getCommandMap()->register($this->getName(), $this->command);
+        $command = new PluginCommand($config->getNested("command.name"), $this, $this);
+        $command->setPermission("chunkloader.cmd");
+        $command->setAliases($config->getNested("command.aliases"));
+        $command->setUsage($this->language->translate("commands.chunkloader.usage"));
+        $command->setDescription($this->language->translate("commands.chunkloader.description"));
+        $this->getServer()->getCommandMap()->register($this->getName(), $command);
 
         //Register subcommands
         $this->subcommands = [
@@ -139,13 +151,13 @@ class ChunkLoader extends PluginBase{
         $permissions = PermissionManager::getInstance()->getPermissions();
         $defaultValue = $config->getNested("permission.main");
         if($defaultValue !== null){
-            $permissions["chunkloader.cmd"]->setDefault(Permission::getByName($config->getNested("permission.main")));
+            $permissions["chunkloader.cmd"]->setDefault($config->getNested("permission.main"));
         }
         foreach($this->subcommands as $key => $subcommand){
             $label = $subcommand->getLabel();
             $defaultValue = $config->getNested("permission.children.{$label}");
             if($defaultValue !== null){
-                $permissions["chunkloader.cmd.{$label}"]->setDefault(Permission::getByName($defaultValue));
+                $permissions["chunkloader.cmd.{$label}"]->setDefault($defaultValue);
             }
         }
     }
@@ -156,15 +168,23 @@ class ChunkLoader extends PluginBase{
      */
     public function onDisable() : void{
         //Save registered chunk map
-        $value = [];
+        $tag = CompoundTag::create();
         foreach($this->dataMaps as $worldName => $chunkDataMap){
             if(!empty($chunkDataMap->getAll())){
-                $value[] = $chunkDataMap->nbtSerialize();
+                $tag->setTag($chunkDataMap->getWorldName(), $chunkDataMap->nbtSerialize());
             }
         }
         if(!empty($value)){
-            $namedTag = new CompoundTag("ChunkLoader", $value);
-            file_put_contents("{$this->getDataFolder()}data.dat", (new BigEndianNBTStream())->writeCompressed($namedTag));
+            $nbt = new BigEndianNbtSerializer();
+            try{
+                file_put_contents("{$this->getDataFolder()}data.dat", zlib_encode($nbt->write(new TreeRoot($tag)), ZLIB_ENCODING_GZIP));
+            }catch(\ErrorException $e){
+                $this->getLogger()->critical($this->getServer()->getLanguage()->translateString("pocketmine.data.saveError", [
+                    "ChunkLoader-data",
+                    $e->getMessage()
+                ]));
+                $this->getLogger()->logException($e);
+            }
         }
     }
 
@@ -238,22 +258,23 @@ class ChunkLoader extends PluginBase{
      * @param ChunkDataMap $chunkDataMap
      */
     public function setChunkDataMap(ChunkDataMap $chunkDataMap) : void{
-        $level = $this->getServer()->getLevelByName($worldName = $chunkDataMap->getWorldName());
-        if($level === null){
+        $worldName = $chunkDataMap->getWorldName();
+        $world = $this->getServer()->getWorldManager()->getWorldByName($worldName);
+        if($world === null){
             $this->dataMaps[$worldName] = $chunkDataMap;
         }else{
             //Unregister chunk loaders from old chunk data map
             if(isset($this->dataMaps[$worldName])){
                 foreach($this->dataMaps[$worldName]->getAll() as $key => $chunkHash){
-                    Level::getXZ($chunkHash, $chunkX, $chunkZ);
-                    $level->unregisterChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
+                    World::getXZ($chunkHash, $chunkX, $chunkZ);
+                    $world->unregisterChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
                 }
             }
             //Register chunk loaders from new chunk data map
             $this->dataMaps[$worldName] = $chunkDataMap;
             foreach($this->dataMaps[$worldName]->getAll() as $key => $chunkHash){
-                Level::getXZ($chunkHash, $chunkX, $chunkZ);
-                $level->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
+                World::getXZ($chunkHash, $chunkX, $chunkZ);
+                $world->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
             }
         }
     }
@@ -266,9 +287,9 @@ class ChunkLoader extends PluginBase{
      * @return bool true if the chunk registered successfully, false if not.
      */
     public function registerChunk(int $chunkX, int $chunkZ, string $worldName) : bool{
-        $level = $this->getServer()->getLevelByName($worldName);
-        if($level !== null){
-            $level->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
+        $world = $this->getServer()->getWorldManager()->getWorldByName($worldName);
+        if($world !== null){
+            $world->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
         }
         return $this->getChunkDataMap($worldName)->addChunk($chunkX, $chunkZ);
     }
@@ -281,9 +302,9 @@ class ChunkLoader extends PluginBase{
      * @return bool true if the chunk unregistered successfully, false if not.
      */
     public function unregisterChunk(int $chunkX, int $chunkZ, string $worldName) : bool{
-        $level = $this->getServer()->getLevelByName($worldName);
-        if($level !== null){
-            $level->unregisterChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
+        $world = $this->getServer()->getWorldManager()->getWorldByName($worldName);
+        if($world !== null){
+            $world->unregisterChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
         }
         return $this->getChunkDataMap($worldName)->removeChunk($chunkX, $chunkZ);
     }

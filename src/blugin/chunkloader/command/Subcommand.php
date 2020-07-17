@@ -31,113 +31,112 @@ use blugin\chunkloader\ChunkLoader;
 use pocketmine\command\CommandSender;
 
 abstract class Subcommand{
-	public const LABEL = "";
+    public const LABEL = "";
 
-	/** @var ChunkLoader */
-	protected $plugin;
+    /** @var ChunkLoader */
+    protected $plugin;
 
-	/** @var string */
-	private $name;
+    /** @var string */
+    private $name;
 
-	/** @var string[] */
-	private $aliases;
+    /** @var string[] */
+    private $aliases;
 
-	/** @var string */
-	private $permission;
+    /** @var string */
+    private $permission;
 
-	/**
-	 * Subcommand constructor.
-	 *
-	 * @param ChunkLoader $plugin
-	 */
-	public function __construct(ChunkLoader $plugin){
-		$this->plugin = $plugin;
+    /**
+     * Subcommand constructor.
+     *
+     * @param ChunkLoader $plugin
+     */
+    public function __construct(ChunkLoader $plugin){
+        $this->plugin = $plugin;
 
-		$label = $this->getLabel();
-		$config = $plugin->getConfig();
-		$this->name = $config->getNested("command.children.{$label}.name");
-		$this->aliases = $config->getNested("command.children.{$label}.aliases");
-		$this->permission = "chunkloader.cmd.{$label}";
-	}
+        $label = $this->getLabel();
+        $config = $plugin->getConfig();
+        $this->name = $config->getNested("command.children.{$label}.name");
+        $this->aliases = $config->getNested("command.children.{$label}.aliases");
+        $this->permission = "chunkloader.cmd.{$label}";
+    }
 
+    /**
+     * @param string $label
+     *
+     * @return bool
+     */
+    public function checkLabel(string $label) : bool{
+        return strcasecmp($label, $this->name) === 0 || in_array($label, $this->aliases);
+    }
 
-	/**
-	 * @param string $label
-	 *
-	 * @return bool
-	 */
-	public function checkLabel(string $label) : bool{
-		return strcasecmp($label, $this->name) === 0 || in_array($label, $this->aliases);
-	}
+    /**
+     * @param CommandSender $sender
+     * @param string[]      $args = []
+     */
+    public function handle(CommandSender $sender, array $args = []) : void{
+        if($sender->hasPermission($this->permission)){
+            if(!$this->execute($sender, $args)){
+                $sender->sendMessage($this->plugin->getLanguage()->translate("commands.chunkloader." . static::LABEL . ".usage"));
+            }
+        }else{
+            $sender->sendMessage($this->plugin->getLanguage()->translate("commands.generic.permission"));
+        }
+    }
 
-	/**
-	 * @param CommandSender $sender
-	 * @param string[]      $args = []
-	 */
-	public function handle(CommandSender $sender, array $args = []) : void{
-		if($sender->hasPermission($this->permission)){
-			if(!$this->execute($sender, $args)){
-				$sender->sendMessage($this->plugin->getLanguage()->translate("commands.chunkloader." . static::LABEL . ".usage"));
-			}
-		}else{
-			$sender->sendMessage($this->plugin->getLanguage()->translate("commands.generic.permission"));
-		}
-	}
+    /**
+     * @param CommandSender $sender
+     * @param string[]      $args = []
+     *
+     * @return bool
+     */
+    public abstract function execute(CommandSender $sender, array $args = []) : bool;
 
-	/**
-	 * @param CommandSender $sender
-	 * @param string[]      $args = []
-	 *
-	 * @return bool
-	 */
-	public abstract function execute(CommandSender $sender, array $args = []) : bool;
+    /**
+     * @return string
+     */
+    public function getLabel() : string{
+        return static::LABEL;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getLabel() : string{
-		return static::LABEL;
-	}
+    /**
+     * @return string
+     */
+    public function getName() : string{
+        return $this->name;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getName() : string{
-		return $this->name;
-	}
+    /**
+     * @param string $name
+     */
+    public function setName(string $name) : void{
+        $this->name = $name;
+    }
 
-	/**
-	 * @param string $name
-	 */
-	public function setName(string $name) : void{
-		$this->name = $name;
-	}
+    /**
+     * @return string[]
+     */
+    public function getAliases() : array{
+        return $this->aliases;
+    }
 
-	/**
-	 * @return string[]
-	 */
-	public function getAliases() : array{
-		return $this->aliases;
-	}
+    /**
+     * @param string[] $aliases
+     */
+    public function setAliases(array $aliases) : void{
+        $this->aliases = $aliases;
+    }
 
-	/**
-	 * @param string[] $aliases
-	 */
-	public function setAliases(array $aliases) : void{
-		$this->aliases = $aliases;
-	}
+    /**
+     * @return string
+     */
+    public function getPermission() : string{
+        return $this->permission;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getPermission() : string{
-		return $this->permission;
-	}
-
-	/**
-	 * @param string $permission
-	 */
-	public function setPermission(string $permission) : void{
-		$this->permission = $permission;
-	}
+    /**
+     * @param string $permission
+     */
+    public function setPermission(string $permission) : void{
+        $this->permission = $permission;
+    }
 }
