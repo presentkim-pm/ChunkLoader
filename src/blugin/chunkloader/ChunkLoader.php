@@ -76,17 +76,9 @@ class ChunkLoader extends PluginBase{
      * Called when the plugin is enabled
      */
     public function onEnable() : void{
-        //Load config file
-        $this->saveDefaultConfig();
-        $this->reloadConfig();
+        //Load config and language
         $config = $this->getConfig();
-
-        //Load language file
         $this->loadLanguage($config->getNested("settings.language"));
-        $this->getLogger()->info($this->language->translate("language.selected", [
-            $this->language->getName(),
-            $this->language->getLang()
-        ]));
 
         //Load registered chunk map
         if(file_exists($file = "{$this->getDataFolder()}data.dat")){
