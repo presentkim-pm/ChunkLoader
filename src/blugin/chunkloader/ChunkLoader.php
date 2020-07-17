@@ -44,22 +44,15 @@ use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\TreeRoot;
 use pocketmine\permission\PermissionManager;
 use pocketmine\plugin\PluginBase;
+use pocketmine\utils\SingletonTrait;
 use pocketmine\world\World;
 
 class ChunkLoader extends PluginBase{
+    use SingletonTrait;
+
     public const REGISTER = 0;
     public const UNREGISTER = 1;
     public const LIST = 2;
-
-    /** @var ChunkLoader */
-    private static $instance;
-
-    /**
-     * @return ChunkLoader
-     */
-    public static function getInstance() : ChunkLoader{
-        return self::$instance;
-    }
 
     /** @var PluginLang */
     private $language;
@@ -77,7 +70,7 @@ class ChunkLoader extends PluginBase{
      * Called when the plugin is loaded, before calling onEnable()
      */
     public function onLoad() : void{
-        self::$instance = $this;
+        self::setInstance($this);
         $this->chunkLoader = new PluginChunkLoader($this);
     }
 
