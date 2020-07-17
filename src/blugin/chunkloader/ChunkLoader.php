@@ -32,8 +32,8 @@ use blugin\chunkloader\command\RegisterSubcommand;
 use blugin\chunkloader\command\Subcommand;
 use blugin\chunkloader\command\UnregisterSubcommand;
 use blugin\chunkloader\data\ChunkDataMap;
-use blugin\chunkloader\lang\PluginLang;
 use blugin\chunkloader\world\PluginChunkLoader;
+use blugin\lib\lang\LanguageTrait;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
@@ -49,13 +49,11 @@ use pocketmine\world\World;
 
 class ChunkLoader extends PluginBase{
     use SingletonTrait;
+    use LanguageTrait;
 
     public const REGISTER = 0;
     public const UNREGISTER = 1;
     public const LIST = 2;
-
-    /** @var PluginLang */
-    private $language;
 
     /** @var Subcommand[] */
     private $subcommands;
@@ -78,18 +76,13 @@ class ChunkLoader extends PluginBase{
      * Called when the plugin is enabled
      */
     public function onEnable() : void{
-        //Save default resources
-        $this->saveResource("lang/eng/lang.ini", false);
-        $this->saveResource("lang/kor/lang.ini", false);
-        $this->saveResource("lang/language.list", false);
-
         //Load config file
         $this->saveDefaultConfig();
         $this->reloadConfig();
         $config = $this->getConfig();
 
         //Load language file
-        $this->language = new PluginLang($this, $config->getNested("settings.language"));
+        $this->loadLanguage($config->getNested("settings.language"));
         $this->getLogger()->info($this->language->translate("language.selected", [
             $this->language->getName(),
             $this->language->getLang()
@@ -216,26 +209,6 @@ class ChunkLoader extends PluginBase{
     }
 
     /**
-     * @Override for multilingual support of the config file
-     *
-     * @return bool
-     */
-    public function saveDefaultConfig() : bool{
-        $resource = $this->getResource("lang/{$this->getServer()->getLanguage()->getLang()}/config.yml");
-        if($resource === null){
-            $resource = $this->getResource("lang/" . PluginLang::FALLBACK_LANGUAGE . "/config.yml");
-        }
-
-        if(!file_exists($configFile = $this->getDataFolder() . "config.yml")){
-            $ret = stream_copy_to_stream($resource, $fp = fopen($configFile, "wb")) > 0;
-            fclose($fp);
-            fclose($resource);
-            return $ret;
-        }
-        return false;
-    }
-
-    /**
      * @param string $worldName
      *
      * @return ChunkDataMap
@@ -300,12 +273,5 @@ class ChunkLoader extends PluginBase{
             $world->unregisterChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
         }
         return $this->getChunkDataMap($worldName)->removeChunk($chunkX, $chunkZ);
-    }
-
-    /**
-     * @return PluginLang
-     */
-    public function getLanguage() : PluginLang{
-        return $this->language;
     }
 }
