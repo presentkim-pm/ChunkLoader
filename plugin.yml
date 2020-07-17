@@ -2,7 +2,7 @@
 name: ChunkLoader
 main: blugin\chunkloader\ChunkLoader
 version: 2.2.3
-api: [3.0.0, 3.0.0-ALPHA12, 4.0.0]
+api: [4.0.0]
 authors: ['Blugin-team', 'PresentKim']
 description: Load the chunk you want all the time!
 
