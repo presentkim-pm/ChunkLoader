@@ -7,8 +7,6 @@ settings:
   #Available: eng, kor
   language: "eng"
 
-  update-check: false
-
 
 command:
   #Name of main command

@@ -99,11 +99,6 @@ class ChunkLoader extends PluginBase{
 		$this->reloadConfig();
 		$config = $this->getConfig();
 
-		//Check latest version
-		if($config->getNested("settings.update-check", false)){
-			$this->getServer()->getAsyncPool()->submitTask(new CheckUpdateAsyncTask());
-		}
-
 		//Load language file
 		$this->language = new PluginLang($this, $config->getNested("settings.language"));
 		$this->getLogger()->info($this->language->translate("language.selected", [$this->language->getName(), $this->language->getLang()]));
