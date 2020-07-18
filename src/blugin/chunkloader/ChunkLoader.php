@@ -33,6 +33,7 @@ use blugin\chunkloader\command\Subcommand;
 use blugin\chunkloader\command\UnregisterSubcommand;
 use blugin\chunkloader\data\ChunkDataMap;
 use blugin\chunkloader\world\PluginChunkLoader;
+use blugin\lib\lang\LanguageHolder;
 use blugin\lib\lang\LanguageTrait;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
@@ -47,7 +48,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
 use pocketmine\world\World;
 
-class ChunkLoader extends PluginBase{
+class ChunkLoader extends PluginBase implements LanguageHolder{
     use SingletonTrait;
     use LanguageTrait;
 
