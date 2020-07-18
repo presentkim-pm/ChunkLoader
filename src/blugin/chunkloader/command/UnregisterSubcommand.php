@@ -27,12 +27,17 @@ declare(strict_types=1);
 
 namespace blugin\chunkloader\command;
 
+use blugin\chunkloader\ChunkLoader;
+use blugin\lib\command\Subcommand;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\Server;
 
 class UnregisterSubcommand extends Subcommand{
-    public const LABEL = "unregister";
+    /** @return string */
+    public function getLabel() : string{
+        return "unregister";
+    }
 
     /**
      * @param CommandSender $sender
@@ -43,7 +48,7 @@ class UnregisterSubcommand extends Subcommand{
     public function execute(CommandSender $sender, array $args = []) : bool{
         if(isset($args[0])){
             if(!is_numeric($args[0])){
-                $sender->sendMessage($this->plugin->getLanguage()->translate("commands.generic.num.notNumber", [$args[0]]));
+                $this->getMainCommand()->sendMessage($sender, "commands.generic.num.notNumber", [$args[0]]);
                 return true;
             }else{
                 $chunkX = (int) $args[0];
@@ -55,7 +60,7 @@ class UnregisterSubcommand extends Subcommand{
         }
         if(isset($args[1])){
             if(!is_numeric($args[1])){
-                $sender->sendMessage($this->plugin->getLanguage()->translate("commands.generic.num.notNumber", [$args[1]]));
+                $this->getMainCommand()->sendMessage($sender, "commands.generic.num.notNumber", [$args[1]]);
                 return true;
             }else{
                 $chunkZ = (int) $args[1];
@@ -68,7 +73,7 @@ class UnregisterSubcommand extends Subcommand{
         if(isset($args[2])){
             $world = Server::getInstance()->getWorldManager()->getWorldByName($args[2]);
             if($world === null){
-                $sender->sendMessage($this->plugin->getLanguage()->translate("commands.chunkloader.unregister.failure.invalidWorld", [$args[2]]));
+                $this->getMainCommand()->sendMessage($sender, "commands.chunkloader.unregister.failure.invalidWorld", [$args[2]]);
                 return true;
             }
         }elseif($sender instanceof Player){
@@ -76,18 +81,21 @@ class UnregisterSubcommand extends Subcommand{
         }else{
             return false;
         }
-        if(!$this->plugin->unregisterChunk($chunkX, $chunkZ, $world->getFolderName())){
-            $sender->sendMessage($this->plugin->getLanguage()->translate("commands.chunkloader.unregister.failure.notRegistered", [
+        /** @var ChunkLoader $plugin */
+        $plugin = $this->getMainCommand()->getOwningPlugin();
+        if(!$plugin->unregisterChunk($chunkX, $chunkZ, $world->getFolderName())){
+            $this->getMainCommand()->sendMessage($sender, "commands.chunkloader.unregister.failure.notRegistered", [
                 (string) $chunkX,
                 (string) $chunkZ,
                 $world->getFolderName()
-            ]));
+            ]);
         }else{
-            $sender->sendMessage($this->plugin->getLanguage()->translate("commands.chunkloader.unregister.success", [
+            $this->getMainCommand()->sendMessage($sender, "commands.chunkloader.unregister.success", [
                 (string) $chunkX,
                 (string) $chunkZ,
                 $world->getFolderName()
-            ]));
+            ]);
         }
+        return true;
     }
 }

@@ -27,13 +27,18 @@ declare(strict_types=1);
 
 namespace blugin\chunkloader\command;
 
+use blugin\chunkloader\ChunkLoader;
+use blugin\lib\command\Subcommand;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\Server;
 use pocketmine\world\World;
 
 class ListSubcommand extends Subcommand{
-    public const LABEL = "list";
+    /** @return string */
+    public function getLabel() : string{
+        return "list";
+    }
 
     /**
      * @param CommandSender $sender
@@ -47,7 +52,7 @@ class ListSubcommand extends Subcommand{
         if(isset($args[0])){
             $world = Server::getInstance()->getWorldManager()->getWorldByName($args[0]);
             if($world === null){
-                $sender->sendMessage($this->plugin->getLanguage()->translate("commands.chunkloader.list.failure.invalidWorld", [$args[0]]));
+                $this->getMainCommand()->sendMessage($sender, "commands.chunkloader.list.failure.invalidWorld", [$args[0]]);
                 return true;
             }
             $worldName = $args[0];
@@ -58,7 +63,9 @@ class ListSubcommand extends Subcommand{
         }
 
         //Make chunkhash list for show command
-        $chunkHashs = $this->plugin->getChunkDataMap($worldName)->getAll();
+        /** @var ChunkLoader $plugin */
+        $plugin = $this->getMainCommand()->getOwningPlugin();
+        $chunkHashs = $plugin->getChunkDataMap($worldName)->getAll();
         $list = array_chunk($chunkHashs, $sender->getScreenLineHeight());
         $max = count($list);
 
@@ -70,18 +77,18 @@ class ListSubcommand extends Subcommand{
         }
 
         //Send list of registered chunk
-        $sender->sendMessage($this->plugin->getLanguage()->translate("commands.chunkloader.list.head", [
+        $this->getMainCommand()->sendMessage($sender, "commands.chunkloader.list.head", [
             $worldName,
             (string) $page,
             (string) $max
-        ]));
+        ]);
         if(isset($list[$page - 1])){
             foreach($list[$page - 1] as $chunkHash){
                 World::getXZ($chunkHash, $chunkX, $chunkZ);
-                $sender->sendMessage($this->plugin->getLanguage()->translate("commands.chunkloader.list.item", [
+                $this->getMainCommand()->sendMessage($sender, "commands.chunkloader.list.item", [
                     (string) $chunkX,
                     (string) $chunkZ
-                ]));
+                ]);
             }
         }
         return true;

@@ -33,17 +33,14 @@ use blugin\chunkloader\command\Subcommand;
 use blugin\chunkloader\command\UnregisterSubcommand;
 use blugin\chunkloader\data\ChunkDataMap;
 use blugin\chunkloader\world\PluginChunkLoader;
+use blugin\lib\command\SubcommandTrait;
 use blugin\lib\lang\LanguageHolder;
 use blugin\lib\lang\LanguageTrait;
-use pocketmine\command\Command;
-use pocketmine\command\CommandSender;
-use pocketmine\command\PluginCommand;
 use pocketmine\nbt\BigEndianNbtSerializer;
 use pocketmine\nbt\NbtDataException;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\TreeRoot;
-use pocketmine\permission\PermissionManager;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
 use pocketmine\world\World;
@@ -51,13 +48,7 @@ use pocketmine\world\World;
 class ChunkLoader extends PluginBase implements LanguageHolder{
     use SingletonTrait;
     use LanguageTrait;
-
-    public const REGISTER = 0;
-    public const UNREGISTER = 1;
-    public const LIST = 2;
-
-    /** @var Subcommand[] */
-    private $subcommands;
+    use SubcommandTrait;
 
     /** @var PluginChunkLoader */
     private $chunkLoader;
@@ -73,13 +64,18 @@ class ChunkLoader extends PluginBase implements LanguageHolder{
         $this->chunkLoader = new PluginChunkLoader($this);
 
         $this->loadLanguage($this->getConfig()->getNested("settings.language"));
+
+        //Register main command with subcommands
+        $command = $this->registerCommand();
+        $command->registerSubcommand(new RegisterSubcommand($command));
+        $command->registerSubcommand(new UnregisterSubcommand($command));
+        $command->registerSubcommand(new ListSubcommand($command));
     }
 
     /**
      * Called when the plugin is enabled
      */
     public function onEnable() : void{
-        //Load config and language
         //Load registered chunk map
         if(file_exists($file = "{$this->getDataFolder()}data.dat")){
             $contents = @file_get_contents($file);
@@ -109,35 +105,6 @@ class ChunkLoader extends PluginBase implements LanguageHolder{
                 throw new \RuntimeException("The file is not in the NBT-CompoundTag format : $file");
             }
         }
-
-        //Register main command
-        $command = new PluginCommand($config->getNested("command.name"), $this, $this);
-        $command->setPermission("chunkloader.cmd");
-        $command->setAliases($config->getNested("command.aliases"));
-        $command->setUsage($this->language->translate("commands.chunkloader.usage"));
-        $command->setDescription($this->language->translate("commands.chunkloader.description"));
-        $this->getServer()->getCommandMap()->register($this->getName(), $command);
-
-        //Register subcommands
-        $this->subcommands = [
-            self::REGISTER => new RegisterSubcommand($this),
-            self::UNREGISTER => new UnregisterSubcommand($this),
-            self::LIST => new ListSubcommand($this)
-        ];
-
-        //Load permission's default value from config
-        $permissions = PermissionManager::getInstance()->getPermissions();
-        $defaultValue = $config->getNested("permission.main");
-        if($defaultValue !== null){
-            $permissions["chunkloader.cmd"]->setDefault($config->getNested("permission.main"));
-        }
-        foreach($this->subcommands as $key => $subcommand){
-            $label = $subcommand->getLabel();
-            $defaultValue = $config->getNested("permission.children.{$label}");
-            if($defaultValue !== null){
-                $permissions["chunkloader.cmd.{$label}"]->setDefault($defaultValue);
-            }
-        }
     }
 
     /**
@@ -164,40 +131,6 @@ class ChunkLoader extends PluginBase implements LanguageHolder{
                 $this->getLogger()->logException($e);
             }
         }
-    }
-
-    /**
-     * @param CommandSender $sender
-     * @param Command       $command
-     * @param string        $label
-     * @param string[]      $args
-     *
-     * @return bool
-     */
-    public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
-        if(empty($args[0])){
-            $targetSubcommand = null;
-            foreach($this->subcommands as $key => $subcommand){
-                if($sender->hasPermission($subcommand->getPermission())){
-                    if($targetSubcommand === null){
-                        $targetSubcommand = $subcommand;
-                    }else{
-                        //Filter out cases where more than two command has permission
-                        return false;
-                    }
-                }
-            }
-            $targetSubcommand->handle($sender);
-        }else{
-            $label = array_shift($args);
-            foreach($this->subcommands as $key => $subcommand){
-                if($subcommand->checkLabel($label)){
-                    $subcommand->handle($sender, $args);
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     /**
