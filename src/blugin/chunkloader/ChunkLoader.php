@@ -29,7 +29,6 @@ namespace blugin\chunkloader;
 
 use blugin\chunkloader\command\ListSubcommand;
 use blugin\chunkloader\command\RegisterSubcommand;
-use blugin\chunkloader\command\Subcommand;
 use blugin\chunkloader\command\UnregisterSubcommand;
 use blugin\chunkloader\data\ChunkDataMap;
 use blugin\chunkloader\world\PluginChunkLoader;
