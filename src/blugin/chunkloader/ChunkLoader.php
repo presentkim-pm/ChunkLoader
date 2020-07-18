@@ -46,9 +46,7 @@ use pocketmine\utils\SingletonTrait;
 use pocketmine\world\World;
 
 class ChunkLoader extends PluginBase implements LanguageHolder{
-    use SingletonTrait;
-    use LanguageTrait;
-    use SubcommandTrait;
+    use SingletonTrait, LanguageTrait, SubcommandTrait;
 
     /** @var PluginChunkLoader */
     private $chunkLoader;
