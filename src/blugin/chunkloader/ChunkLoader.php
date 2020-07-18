@@ -70,6 +70,8 @@ class ChunkLoader extends PluginBase{
     public function onLoad() : void{
         self::setInstance($this);
         $this->chunkLoader = new PluginChunkLoader($this);
+
+        $this->loadLanguage($this->getConfig()->getNested("settings.language"));
     }
 
     /**
@@ -77,9 +79,6 @@ class ChunkLoader extends PluginBase{
      */
     public function onEnable() : void{
         //Load config and language
-        $config = $this->getConfig();
-        $this->loadLanguage($config->getNested("settings.language"));
-
         //Load registered chunk map
         if(file_exists($file = "{$this->getDataFolder()}data.dat")){
             $contents = @file_get_contents($file);
