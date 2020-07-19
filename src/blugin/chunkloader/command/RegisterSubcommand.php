@@ -73,7 +73,7 @@ class RegisterSubcommand extends Subcommand{
         if(isset($args[2])){
             $world = Server::getInstance()->getWorldManager()->getWorldByName($args[2]);
             if($world === null){
-                $this->getMainCommand()->sendMessage($sender, "commands.chunkloader.register.failure.invalidWorld", [$args[2]]);
+                $this->sendMessage($sender, "failure.invalidWorld", [$args[2]]);
                 return true;
             }
         }elseif($sender instanceof Player){
@@ -84,19 +84,19 @@ class RegisterSubcommand extends Subcommand{
         /** @var ChunkLoader $plugin */
         $plugin = $this->getMainCommand()->getOwningPlugin();
         if(!$world->isChunkGenerated($chunkX, $chunkZ)){
-            $this->getMainCommand()->sendMessage($sender, "commands.chunkloader.register.failure.notGenerated", [
+            $this->sendMessage($sender, "failure.notGenerated", [
                 (string) $chunkX,
                 (string) $chunkZ,
                 $world->getFolderName()
             ]);
         }elseif(!$plugin->registerChunk($chunkX, $chunkZ, $world->getFolderName())){
-            $this->getMainCommand()->sendMessage($sender, "commands.chunkloader.register.failure.already", [
+            $this->sendMessage($sender, "failure.already", [
                 (string) $chunkX,
                 (string) $chunkZ,
                 $world->getFolderName()
             ]);
         }else{
-            $this->getMainCommand()->sendMessage($sender, "commands.chunkloader.register.success", [
+            $this->sendMessage($sender, "success", [
                 (string) $chunkX,
                 (string) $chunkZ,
                 $world->getFolderName()

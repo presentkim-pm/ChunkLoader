@@ -73,7 +73,7 @@ class UnregisterSubcommand extends Subcommand{
         if(isset($args[2])){
             $world = Server::getInstance()->getWorldManager()->getWorldByName($args[2]);
             if($world === null){
-                $this->getMainCommand()->sendMessage($sender, "commands.chunkloader.unregister.failure.invalidWorld", [$args[2]]);
+                $this->sendMessage($sender, "failure.invalidWorld", [$args[2]]);
                 return true;
             }
         }elseif($sender instanceof Player){
@@ -84,13 +84,13 @@ class UnregisterSubcommand extends Subcommand{
         /** @var ChunkLoader $plugin */
         $plugin = $this->getMainCommand()->getOwningPlugin();
         if(!$plugin->unregisterChunk($chunkX, $chunkZ, $world->getFolderName())){
-            $this->getMainCommand()->sendMessage($sender, "commands.chunkloader.unregister.failure.notRegistered", [
+            $this->sendMessage($sender, "failure.notRegistered", [
                 (string) $chunkX,
                 (string) $chunkZ,
                 $world->getFolderName()
             ]);
         }else{
-            $this->getMainCommand()->sendMessage($sender, "commands.chunkloader.unregister.success", [
+            $this->sendMessage($sender, "success", [
                 (string) $chunkX,
                 (string) $chunkZ,
                 $world->getFolderName()

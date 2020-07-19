@@ -52,7 +52,7 @@ class ListSubcommand extends Subcommand{
         if(isset($args[0])){
             $world = Server::getInstance()->getWorldManager()->getWorldByName($args[0]);
             if($world === null){
-                $this->getMainCommand()->sendMessage($sender, "commands.chunkloader.list.failure.invalidWorld", [$args[0]]);
+                $this->sendMessage($sender, "failure.invalidWorld", [$args[0]]);
                 return true;
             }
             $worldName = $args[0];
@@ -77,7 +77,7 @@ class ListSubcommand extends Subcommand{
         }
 
         //Send list of registered chunk
-        $this->getMainCommand()->sendMessage($sender, "commands.chunkloader.list.head", [
+        $this->sendMessage($sender, "head", [
             $worldName,
             (string) $page,
             (string) $max
@@ -85,7 +85,7 @@ class ListSubcommand extends Subcommand{
         if(isset($list[$page - 1])){
             foreach($list[$page - 1] as $chunkHash){
                 World::getXZ($chunkHash, $chunkX, $chunkZ);
-                $this->getMainCommand()->sendMessage($sender, "commands.chunkloader.list.item", [
+                $this->sendMessage($sender, "item", [
                     (string) $chunkX,
                     (string) $chunkZ
                 ]);
