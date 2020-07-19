@@ -62,17 +62,21 @@ class ChunkLoader extends PluginBase implements LanguageHolder{
 
         $this->loadLanguage($this->getConfig()->getNested("settings.language"));
 
-        //Register main command with subcommands
-        $command = $this->registerCommand();
-        $command->registerSubcommand(new RegisterSubcommand($command));
-        $command->registerSubcommand(new UnregisterSubcommand($command));
-        $command->registerSubcommand(new ListSubcommand($command));
+        //Create main command
+        $this->getMainCommand();
     }
 
     /**
      * Called when the plugin is enabled
      */
     public function onEnable() : void{
+        //Register main command with subcommands
+        $command = $this->getMainCommand();
+        $command->registerSubcommand(new RegisterSubcommand($command));
+        $command->registerSubcommand(new UnregisterSubcommand($command));
+        $command->registerSubcommand(new ListSubcommand($command));
+        $this->getServer()->getCommandMap()->register($this->getName(), $command);
+
         //Load registered chunk map
         if(file_exists($file = "{$this->getDataFolder()}data.dat")){
             $contents = @file_get_contents($file);
@@ -109,6 +113,9 @@ class ChunkLoader extends PluginBase implements LanguageHolder{
      * Use this to free open things and finish actions
      */
     public function onDisable() : void{
+        //Unregister main command with subcommands
+        $this->getServer()->getCommandMap()->unregister($this->getMainCommand());
+
         //Save registered chunk map
         $tag = CompoundTag::create();
         foreach($this->dataMaps as $worldName => $chunkDataMap){
