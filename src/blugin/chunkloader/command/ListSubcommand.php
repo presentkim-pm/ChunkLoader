@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace blugin\chunkloader\command;
 
 use blugin\chunkloader\ChunkLoader;
+use blugin\lib\command\exception\defaults\GenericInvalidWorldException;
 use blugin\lib\command\Subcommand;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
@@ -51,10 +52,8 @@ class ListSubcommand extends Subcommand{
         $worldName = null;
         if(isset($args[0])){
             $world = Server::getInstance()->getWorldManager()->getWorldByName($args[0]);
-            if($world === null){
-                $this->sendMessage($sender, "failure.invalidWorld", [$args[0]]);
-                return true;
-            }
+            if($world === null)
+                throw new GenericInvalidWorldException($args[2]);
             $worldName = $args[0];
         }elseif($sender instanceof Player){
             $worldName = $sender->getWorld()->getFolderName();

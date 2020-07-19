@@ -28,6 +28,8 @@ declare(strict_types=1);
 namespace blugin\chunkloader\command;
 
 use blugin\chunkloader\ChunkLoader;
+use blugin\lib\command\exception\defaults\GenericInvalidNumberException;
+use blugin\lib\command\exception\defaults\GenericInvalidWorldException;
 use blugin\lib\command\Subcommand;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
@@ -47,24 +49,18 @@ class UnregisterSubcommand extends Subcommand{
      */
     public function execute(CommandSender $sender, array $args = []) : bool{
         if(isset($args[0])){
-            if(!is_numeric($args[0])){
-                $this->getMainCommand()->sendMessage($sender, "commands.generic.num.notNumber", [$args[0]]);
-                return true;
-            }else{
-                $chunkX = (int) $args[0];
-            }
+            if(!is_numeric($args[0]))
+                throw new GenericInvalidNumberException($args[0]);
+            $chunkX = (int) $args[0];
         }elseif($sender instanceof Player){
             $chunkX = $sender->getPosition()->getX() >> 4;
         }else{
             return false;
         }
         if(isset($args[1])){
-            if(!is_numeric($args[1])){
-                $this->getMainCommand()->sendMessage($sender, "commands.generic.num.notNumber", [$args[1]]);
-                return true;
-            }else{
-                $chunkZ = (int) $args[1];
-            }
+            if(!is_numeric($args[1]))
+                throw new GenericInvalidNumberException($args[1]);
+            $chunkZ = (int) $args[1];
         }elseif($sender instanceof Player){
             $chunkZ = $sender->getPosition()->getZ() >> 4;
         }else{
@@ -72,10 +68,8 @@ class UnregisterSubcommand extends Subcommand{
         }
         if(isset($args[2])){
             $world = Server::getInstance()->getWorldManager()->getWorldByName($args[2]);
-            if($world === null){
-                $this->sendMessage($sender, "failure.invalidWorld", [$args[2]]);
-                return true;
-            }
+            if($world === null)
+                throw new GenericInvalidWorldException($args[2]);
         }elseif($sender instanceof Player){
             $world = $sender->getWorld();
         }else{
