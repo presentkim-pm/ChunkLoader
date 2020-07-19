@@ -29,12 +29,11 @@ namespace blugin\chunkloader\command;
 
 use blugin\chunkloader\ChunkLoader;
 use blugin\lib\command\Subcommand;
-use blugin\lib\command\validator\defaults\NumberArgumentValidator;
-use blugin\lib\command\validator\defaults\WorldArgumentValidator;
 use pocketmine\command\CommandSender;
-use pocketmine\player\Player;
 
 class RegisterSubcommand extends Subcommand{
+    use DefaultArgumentTrait;
+
     /** @return string */
     public function getLabel() : string{
         return "register";
@@ -47,27 +46,9 @@ class RegisterSubcommand extends Subcommand{
      * @return bool
      */
     public function execute(CommandSender $sender, array $args = []) : bool{
-        if(isset($args[0])){
-            $chunkX = (int) NumberArgumentValidator::validate($args[0]);
-        }elseif($sender instanceof Player){
-            $chunkX = $sender->getPosition()->getX() >> 4;
-        }else{
-            return false;
-        }
-        if(isset($args[1])){
-            $chunkZ = (int) NumberArgumentValidator::validate($args[1]);
-        }elseif($sender instanceof Player){
-            $chunkZ = $sender->getPosition()->getZ() >> 4;
-        }else{
-            return false;
-        }
-        if(isset($args[2])){
-            $world = WorldArgumentValidator::validate($args[2]);
-        }elseif($sender instanceof Player){
-            $world = $sender->getWorld();
-        }else{
-            return false;
-        }
+        $chunkX = $this->getChunkX($sender, $args[0] ?? null);
+        $chunkZ = $this->getChunkZ($sender, $args[1] ?? null);
+        $world = $this->getWorld($sender, $args[2] ?? null);
         /** @var ChunkLoader $plugin */
         $plugin = $this->getMainCommand()->getOwningPlugin();
         if(!$world->isChunkGenerated($chunkX, $chunkZ)){

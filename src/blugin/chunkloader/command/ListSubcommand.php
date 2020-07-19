@@ -29,12 +29,12 @@ namespace blugin\chunkloader\command;
 
 use blugin\chunkloader\ChunkLoader;
 use blugin\lib\command\Subcommand;
-use blugin\lib\command\validator\defaults\WorldArgumentValidator;
 use pocketmine\command\CommandSender;
-use pocketmine\player\Player;
 use pocketmine\world\World;
 
 class ListSubcommand extends Subcommand{
+    use DefaultArgumentTrait;
+
     /** @return string */
     public function getLabel() : string{
         return "list";
@@ -47,15 +47,7 @@ class ListSubcommand extends Subcommand{
      * @return bool
      */
     public function execute(CommandSender $sender, array $args = []) : bool{
-        //Get world name from args or player
-        $worldName = null;
-        if(isset($args[0])){
-            $worldName = WorldArgumentValidator::validate($args[0])->getFolderName();
-        }elseif($sender instanceof Player){
-            $worldName = $sender->getWorld()->getFolderName();
-        }else{
-            return false;
-        }
+        $worldName = $this->getWorld($sender, array_shift($args))->getFolderName();
 
         //Make chunkhash list for show command
         /** @var ChunkLoader $plugin */
@@ -65,8 +57,8 @@ class ListSubcommand extends Subcommand{
         $max = count($list);
 
         //Get page number from args
-        if(isset($args[1]) && is_numeric($args[1]) && $args[1] >= 1){
-            $page = min($max, (int) $args[1]);
+        if(isset($args[0]) && is_numeric($args[0]) && $args[0] >= 1){
+            $page = min($max, (int) $args[0]);
         }else{
             $page = 1;
         }
