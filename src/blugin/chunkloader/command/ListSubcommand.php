@@ -28,8 +28,8 @@ declare(strict_types=1);
 namespace blugin\chunkloader\command;
 
 use blugin\chunkloader\ChunkLoader;
-use blugin\lib\command\exception\defaults\GenericInvalidWorldException;
 use blugin\lib\command\Subcommand;
+use blugin\lib\command\validator\defaults\WorldArgumentValidator;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\world\World;
@@ -50,8 +50,7 @@ class ListSubcommand extends Subcommand{
         //Get world name from args or player
         $worldName = null;
         if(isset($args[0])){
-            GenericInvalidWorldException::validate($args[0]);
-            $worldName = $args[0];
+            $worldName = WorldArgumentValidator::validate($args[0])->getFolderName();
         }elseif($sender instanceof Player){
             $worldName = $sender->getWorld()->getFolderName();
         }else{

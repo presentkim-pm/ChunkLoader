@@ -28,12 +28,11 @@ declare(strict_types=1);
 namespace blugin\chunkloader\command;
 
 use blugin\chunkloader\ChunkLoader;
-use blugin\lib\command\exception\defaults\GenericInvalidNumberException;
-use blugin\lib\command\exception\defaults\GenericInvalidWorldException;
 use blugin\lib\command\Subcommand;
+use blugin\lib\command\validator\defaults\NumberArgumentValidator;
+use blugin\lib\command\validator\defaults\WorldArgumentValidator;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
-use pocketmine\Server;
 
 class RegisterSubcommand extends Subcommand{
     /** @return string */
@@ -49,24 +48,21 @@ class RegisterSubcommand extends Subcommand{
      */
     public function execute(CommandSender $sender, array $args = []) : bool{
         if(isset($args[0])){
-            GenericInvalidNumberException::validate($args[0]);
-            $chunkX = (int) $args[0];
+            $chunkX = (int) NumberArgumentValidator::validate($args[0]);
         }elseif($sender instanceof Player){
             $chunkX = $sender->getPosition()->getX() >> 4;
         }else{
             return false;
         }
         if(isset($args[1])){
-            GenericInvalidNumberException::validate($args[1]);
-            $chunkZ = (int) $args[1];
+            $chunkZ = (int) NumberArgumentValidator::validate($args[1]);
         }elseif($sender instanceof Player){
             $chunkZ = $sender->getPosition()->getZ() >> 4;
         }else{
             return false;
         }
         if(isset($args[2])){
-            GenericInvalidWorldException::validate($args[2]);
-            $world = Server::getInstance()->getWorldManager()->getWorldByName($args[2]);
+            $world = WorldArgumentValidator::validate($args[2]);
         }elseif($sender instanceof Player){
             $world = $sender->getWorld();
         }else{
