@@ -56,18 +56,11 @@ class ListSubcommand extends Subcommand{
         $page = NumberArgumentValidator::validateRange(array_shift($args) ?? "1", 1, count($list));
 
         //Send list of registered chunk
-        $this->sendMessage($sender, "head", [
-            $worldName,
-            (string) $page,
-            (string) count($list)
-        ]);
+        $this->sendMessage($sender, "head", [$worldName, $page, count($list)]);
         if(isset($list[$page - 1])){
             foreach($list[$page - 1] as $chunkHash){
                 World::getXZ($chunkHash, $chunkX, $chunkZ);
-                $this->sendMessage($sender, "item", [
-                    (string) $chunkX,
-                    (string) $chunkZ
-                ]);
+                $this->sendMessage($sender, "item", [$chunkX, $chunkZ]);
             }
         }
         return true;

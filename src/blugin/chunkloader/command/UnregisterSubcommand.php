@@ -51,18 +51,11 @@ class UnregisterSubcommand extends Subcommand{
         $world = $this->getWorld($sender, array_shift($args));
         /** @var ChunkLoader $plugin */
         $plugin = $this->getMainCommand()->getOwningPlugin();
+        $translateArgs = [$chunkX, $chunkZ, $world->getFolderName()];
         if(!$plugin->unregisterChunk($chunkX, $chunkZ, $world->getFolderName())){
-            $this->sendMessage($sender, "failure.notRegistered", [
-                (string) $chunkX,
-                (string) $chunkZ,
-                $world->getFolderName()
-            ]);
+            $this->sendMessage($sender, "failure.notRegistered", $translateArgs);
         }else{
-            $this->sendMessage($sender, "success", [
-                (string) $chunkX,
-                (string) $chunkZ,
-                $world->getFolderName()
-            ]);
+            $this->sendMessage($sender, "success", $translateArgs);
         }
         return true;
     }

@@ -51,24 +51,13 @@ class RegisterSubcommand extends Subcommand{
         $world = $this->getWorld($sender, $args[2] ?? null);
         /** @var ChunkLoader $plugin */
         $plugin = $this->getMainCommand()->getOwningPlugin();
+        $translateArgs = [$chunkX, $chunkZ, $world->getFolderName()];
         if(!$world->isChunkGenerated($chunkX, $chunkZ)){
-            $this->sendMessage($sender, "failure.notGenerated", [
-                (string) $chunkX,
-                (string) $chunkZ,
-                $world->getFolderName()
-            ]);
+            $this->sendMessage($sender, "failure.notGenerated", $translateArgs);
         }elseif(!$plugin->registerChunk($chunkX, $chunkZ, $world->getFolderName())){
-            $this->sendMessage($sender, "failure.already", [
-                (string) $chunkX,
-                (string) $chunkZ,
-                $world->getFolderName()
-            ]);
+            $this->sendMessage($sender, "failure.already", $translateArgs);
         }else{
-            $this->sendMessage($sender, "success", [
-                (string) $chunkX,
-                (string) $chunkZ,
-                $world->getFolderName()
-            ]);
+            $this->sendMessage($sender, "success", $translateArgs);
         }
         return true;
     }
