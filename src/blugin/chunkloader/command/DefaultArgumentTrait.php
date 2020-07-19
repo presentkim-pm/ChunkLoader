@@ -82,4 +82,17 @@ trait DefaultArgumentTrait{
             throw new ArgumentLackException();
         }
     }
+
+    /**
+     * @param CommandSender  $sender
+     * @param array          $args
+     * @param int|null      &$chunkX
+     * @param int|null      &$chunkZ
+     * @param World|null    &$world
+     */
+    public function getAllArguments(CommandSender $sender, array $args, ?int &$chunkX, ?int &$chunkZ, ?World &$world) : void{
+        $chunkX = $this->getChunkX($sender, $args[0] ?? null);
+        $chunkZ = $this->getChunkZ($sender, $args[1] ?? null);
+        $world = $this->getWorld($sender, $args[2] ?? null);
+    }
 }

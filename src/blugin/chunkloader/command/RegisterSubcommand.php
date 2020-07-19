@@ -46,9 +46,7 @@ class RegisterSubcommand extends Subcommand{
      * @return bool
      */
     public function execute(CommandSender $sender, array $args = []) : bool{
-        $chunkX = $this->getChunkX($sender, $args[0] ?? null);
-        $chunkZ = $this->getChunkZ($sender, $args[1] ?? null);
-        $world = $this->getWorld($sender, $args[2] ?? null);
+        $this->getAllArguments($sender, $args, $chunkX, $chunkZ, $world);
         /** @var ChunkLoader $plugin */
         $plugin = $this->getMainCommand()->getOwningPlugin();
         $translateArgs = [$chunkX, $chunkZ, $world->getFolderName()];
