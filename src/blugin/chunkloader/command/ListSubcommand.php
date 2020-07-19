@@ -29,6 +29,7 @@ namespace blugin\chunkloader\command;
 
 use blugin\chunkloader\ChunkLoader;
 use blugin\lib\command\Subcommand;
+use blugin\lib\command\validator\defaults\NumberArgumentValidator;
 use pocketmine\command\CommandSender;
 use pocketmine\world\World;
 
@@ -48,26 +49,17 @@ class ListSubcommand extends Subcommand{
      */
     public function execute(CommandSender $sender, array $args = []) : bool{
         $worldName = $this->getWorld($sender, array_shift($args))->getFolderName();
-
-        //Make chunkhash list for show command
         /** @var ChunkLoader $plugin */
         $plugin = $this->getMainCommand()->getOwningPlugin();
         $chunkHashs = $plugin->getChunkDataMap($worldName)->getAll();
         $list = array_chunk($chunkHashs, $sender->getScreenLineHeight());
-        $max = count($list);
-
-        //Get page number from args
-        if(isset($args[0]) && is_numeric($args[0]) && $args[0] >= 1){
-            $page = min($max, (int) $args[0]);
-        }else{
-            $page = 1;
-        }
+        $page = NumberArgumentValidator::validateRange(array_shift($args) ?? "1", 1, count($list));
 
         //Send list of registered chunk
         $this->sendMessage($sender, "head", [
             $worldName,
             (string) $page,
-            (string) $max
+            (string) count($list)
         ]);
         if(isset($list[$page - 1])){
             foreach($list[$page - 1] as $chunkHash){
