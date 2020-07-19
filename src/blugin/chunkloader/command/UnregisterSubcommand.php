@@ -49,8 +49,7 @@ class UnregisterSubcommand extends Subcommand{
      */
     public function execute(CommandSender $sender, array $args = []) : bool{
         if(isset($args[0])){
-            if(!is_numeric($args[0]))
-                throw new GenericInvalidNumberException($args[0]);
+            GenericInvalidNumberException::validate($args[0]);
             $chunkX = (int) $args[0];
         }elseif($sender instanceof Player){
             $chunkX = $sender->getPosition()->getX() >> 4;
@@ -58,8 +57,7 @@ class UnregisterSubcommand extends Subcommand{
             return false;
         }
         if(isset($args[1])){
-            if(!is_numeric($args[1]))
-                throw new GenericInvalidNumberException($args[1]);
+            GenericInvalidNumberException::validate($args[1]);
             $chunkZ = (int) $args[1];
         }elseif($sender instanceof Player){
             $chunkZ = $sender->getPosition()->getZ() >> 4;
@@ -67,9 +65,8 @@ class UnregisterSubcommand extends Subcommand{
             return false;
         }
         if(isset($args[2])){
+            GenericInvalidWorldException::validate($args[2]);
             $world = Server::getInstance()->getWorldManager()->getWorldByName($args[2]);
-            if($world === null)
-                throw new GenericInvalidWorldException($args[2]);
         }elseif($sender instanceof Player){
             $world = $sender->getWorld();
         }else{

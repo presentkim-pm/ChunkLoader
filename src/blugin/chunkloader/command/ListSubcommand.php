@@ -32,7 +32,6 @@ use blugin\lib\command\exception\defaults\GenericInvalidWorldException;
 use blugin\lib\command\Subcommand;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
-use pocketmine\Server;
 use pocketmine\world\World;
 
 class ListSubcommand extends Subcommand{
@@ -51,9 +50,7 @@ class ListSubcommand extends Subcommand{
         //Get world name from args or player
         $worldName = null;
         if(isset($args[0])){
-            $world = Server::getInstance()->getWorldManager()->getWorldByName($args[0]);
-            if($world === null)
-                throw new GenericInvalidWorldException($args[2]);
+            GenericInvalidWorldException::validate($args[0]);
             $worldName = $args[0];
         }elseif($sender instanceof Player){
             $worldName = $sender->getWorld()->getFolderName();
