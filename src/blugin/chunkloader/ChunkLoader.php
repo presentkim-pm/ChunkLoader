@@ -57,8 +57,6 @@ class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader{
         self::setInstance($this);
 
         $this->loadLanguage($this->getConfig()->getNested("settings.language"));
-
-        //Create main command
         $this->getMainCommand();
     }
 
@@ -119,17 +117,15 @@ class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader{
                 $tag->setTag($chunkDataMap->getWorldName(), $chunkDataMap->nbtSerialize());
             }
         }
-        if(!empty($value)){
-            $nbt = new BigEndianNbtSerializer();
-            try{
-                file_put_contents("{$this->getDataFolder()}data.dat", zlib_encode($nbt->write(new TreeRoot($tag)), ZLIB_ENCODING_GZIP));
-            }catch(\ErrorException $e){
-                $this->getLogger()->critical($this->getServer()->getLanguage()->translateString("pocketmine.data.saveError", [
-                    "ChunkLoader-data",
-                    $e->getMessage()
-                ]));
-                $this->getLogger()->logException($e);
-            }
+        $nbt = new BigEndianNbtSerializer();
+        try{
+            file_put_contents("{$this->getDataFolder()}data.dat", zlib_encode($nbt->write(new TreeRoot($tag)), ZLIB_ENCODING_GZIP));
+        }catch(\ErrorException $e){
+            $this->getLogger()->critical($this->getServer()->getLanguage()->translateString("pocketmine.data.saveError", [
+                "ChunkLoader-data",
+                $e->getMessage()
+            ]));
+            $this->getLogger()->logException($e);
         }
     }
 
