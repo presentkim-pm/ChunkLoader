@@ -31,7 +31,6 @@ use blugin\chunkloader\command\ListSubcommand;
 use blugin\chunkloader\command\RegisterSubcommand;
 use blugin\chunkloader\command\UnregisterSubcommand;
 use blugin\chunkloader\data\ChunkDataMap;
-use blugin\chunkloader\world\PluginChunkLoader;
 use blugin\lib\command\SubcommandTrait;
 use blugin\lib\lang\LanguageHolder;
 use blugin\lib\lang\LanguageTrait;
@@ -42,13 +41,11 @@ use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\TreeRoot;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
+use pocketmine\world\ChunkLoader as PMChunkLoader;
 use pocketmine\world\World;
 
-class ChunkLoader extends PluginBase implements LanguageHolder{
+class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader{
     use SingletonTrait, LanguageTrait, SubcommandTrait;
-
-    /** @var PluginChunkLoader */
-    private $chunkLoader;
 
     /** @var ChunkDataMap[] */
     private $dataMaps = [];
@@ -58,7 +55,6 @@ class ChunkLoader extends PluginBase implements LanguageHolder{
      */
     public function onLoad() : void{
         self::setInstance($this);
-        $this->chunkLoader = new PluginChunkLoader($this);
 
         $this->loadLanguage($this->getConfig()->getNested("settings.language"));
 
@@ -162,14 +158,14 @@ class ChunkLoader extends PluginBase implements LanguageHolder{
             if(isset($this->dataMaps[$worldName])){
                 foreach($this->dataMaps[$worldName]->getAll() as $key => $chunkHash){
                     World::getXZ($chunkHash, $chunkX, $chunkZ);
-                    $world->unregisterChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
+                    $world->unregisterChunkLoader($this, $chunkX, $chunkZ);
                 }
             }
             //Register chunk loaders from new chunk data map
             $this->dataMaps[$worldName] = $chunkDataMap;
             foreach($this->dataMaps[$worldName]->getAll() as $key => $chunkHash){
                 World::getXZ($chunkHash, $chunkX, $chunkZ);
-                $world->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
+                $world->registerChunkLoader($this, $chunkX, $chunkZ);
             }
         }
     }
@@ -184,7 +180,7 @@ class ChunkLoader extends PluginBase implements LanguageHolder{
     public function registerChunk(int $chunkX, int $chunkZ, string $worldName) : bool{
         $world = $this->getServer()->getWorldManager()->getWorldByName($worldName);
         if($world !== null){
-            $world->registerChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
+            $world->registerChunkLoader($this, $chunkX, $chunkZ);
         }
         return $this->getChunkDataMap($worldName)->addChunk($chunkX, $chunkZ);
     }
@@ -199,8 +195,18 @@ class ChunkLoader extends PluginBase implements LanguageHolder{
     public function unregisterChunk(int $chunkX, int $chunkZ, string $worldName) : bool{
         $world = $this->getServer()->getWorldManager()->getWorldByName($worldName);
         if($world !== null){
-            $world->unregisterChunkLoader($this->chunkLoader, $chunkX, $chunkZ);
+            $world->unregisterChunkLoader($this, $chunkX, $chunkZ);
         }
         return $this->getChunkDataMap($worldName)->removeChunk($chunkX, $chunkZ);
+    }
+
+    /** @return float */
+    public function getX(){
+        return 0;
+    }
+
+    /** @return float */
+    public function getZ(){
+        return 0;
     }
 }
