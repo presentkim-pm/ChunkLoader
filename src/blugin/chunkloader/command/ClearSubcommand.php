@@ -52,7 +52,7 @@ class ClearSubcommand extends Subcommand{
         $plugin = $this->getMainCommand()->getOwningPlugin();
         $chunkHashs = $plugin->getByWorld($world);
         if(empty($chunkHashs)){
-            $this->sendMessage($sender, "failure.empty", [$world->getFolderName()]);
+            $sender->sendMessage($sender->getLanguage()->translateString("commands.generic.emptyWorld", [$world->getFolderName()]));
             return true;
         }
 
