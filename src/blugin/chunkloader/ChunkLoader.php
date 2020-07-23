@@ -69,6 +69,7 @@ class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader, L
         $command->registerSubcommand(new UnregisterSubcommand($command));
         $command->registerSubcommand(new ClearSubcommand($command));
         $command->registerSubcommand(new ListSubcommand($command));
+        $this->recalculatePermissions();
         $this->getServer()->getCommandMap()->register($this->getName(), $command);
 
         //Load chunk loader data of all world
