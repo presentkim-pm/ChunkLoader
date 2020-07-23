@@ -50,7 +50,7 @@ class UnregisterSubcommand extends Subcommand{
         /** @var ChunkLoader $plugin */
         $plugin = $this->getMainCommand()->getOwningPlugin();
         $translateArgs = [$chunkX, $chunkZ, $world->getFolderName()];
-        if(!$plugin->unregisterChunk($chunkX, $chunkZ, $world->getFolderName())){
+        if(!$plugin->unregisterChunk($world, $chunkX, $chunkZ)){
             $this->sendMessage($sender, "failure.notRegistered", $translateArgs);
         }else{
             $this->sendMessage($sender, "success", $translateArgs);

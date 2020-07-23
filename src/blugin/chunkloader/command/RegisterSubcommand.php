@@ -52,7 +52,7 @@ class RegisterSubcommand extends Subcommand{
         $translateArgs = [$chunkX, $chunkZ, $world->getFolderName()];
         if(!$world->isChunkGenerated($chunkX, $chunkZ)){
             $this->sendMessage($sender, "failure.notGenerated", $translateArgs);
-        }elseif(!$plugin->registerChunk($chunkX, $chunkZ, $world->getFolderName())){
+        }elseif(!$plugin->registerChunk($world, $chunkX, $chunkZ)){
             $this->sendMessage($sender, "failure.already", $translateArgs);
         }else{
             $this->sendMessage($sender, "success", $translateArgs);

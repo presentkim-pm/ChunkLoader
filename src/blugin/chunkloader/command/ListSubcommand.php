@@ -48,10 +48,11 @@ class ListSubcommand extends Subcommand{
      * @return bool
      */
     public function execute(CommandSender $sender, array $args = []) : bool{
-        $worldName = $this->getWorld($sender, array_shift($args))->getFolderName();
+        $world = $this->getWorld($sender, array_shift($args));
+        $worldName = $world->getFolderName();
         /** @var ChunkLoader $plugin */
         $plugin = $this->getMainCommand()->getOwningPlugin();
-        $chunkHashs = $plugin->getChunkDataMap($worldName)->getAll();
+        $chunkHashs = $plugin->getByWorld($world);
         $list = array_chunk($chunkHashs, $sender->getScreenLineHeight());
         $page = NumberArgumentValidator::validateRange(array_shift($args) ?? "1", 1, count($list));
 

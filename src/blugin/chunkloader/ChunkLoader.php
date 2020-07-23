@@ -30,25 +30,23 @@ namespace blugin\chunkloader;
 use blugin\chunkloader\command\ListSubcommand;
 use blugin\chunkloader\command\RegisterSubcommand;
 use blugin\chunkloader\command\UnregisterSubcommand;
-use blugin\chunkloader\data\ChunkDataMap;
 use blugin\lib\command\SubcommandTrait;
 use blugin\lib\lang\LanguageHolder;
 use blugin\lib\lang\LanguageTrait;
-use pocketmine\nbt\BigEndianNbtSerializer;
-use pocketmine\nbt\NbtDataException;
-use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\nbt\tag\ListTag;
-use pocketmine\nbt\TreeRoot;
+use pocketmine\event\Listener;
+use pocketmine\event\world\WorldInitEvent;
+use pocketmine\event\world\WorldLoadEvent;
+use pocketmine\event\world\WorldUnloadEvent;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
 use pocketmine\world\ChunkLoader as PMChunkLoader;
 use pocketmine\world\World;
 
-class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader{
+class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader, Listener{
     use SingletonTrait, LanguageTrait, SubcommandTrait;
 
-    /** @var ChunkDataMap[] */
-    private $dataMaps = [];
+    /** @var int[][] world name => chunk hash[] */
+    private $loadList = [];
 
     /**
      * Called when the plugin is loaded, before calling onEnable()
@@ -71,35 +69,12 @@ class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader{
         $command->registerSubcommand(new ListSubcommand($command));
         $this->getServer()->getCommandMap()->register($this->getName(), $command);
 
-        //Load registered chunk map
-        if(file_exists($file = "{$this->getDataFolder()}data.dat")){
-            $contents = @file_get_contents($file);
-            if($contents === false)
-                throw new \RuntimeException("Failed to read player data file \"$file\" (permission denied?)");
-
-            $decompressed = @zlib_decode($contents);
-            if($decompressed === false){
-                throw new \RuntimeException("Failed to decompress raw data for ChunkLoader");
-            }
-
-            try{
-                $tag = (new BigEndianNbtSerializer())->read($decompressed)->mustGetCompoundTag();
-            }catch(NbtDataException $e){
-                throw new \RuntimeException("Failed to decode NBT data for ChunkLoader");
-            }
-
-            if($tag instanceof CompoundTag){
-                /**
-                 * @var string  $worldName
-                 * @var ListTag $mapTag
-                 */
-                foreach($tag as $worldName => $mapTag){
-                    $this->setChunkDataMap(ChunkDataMap::nbtDeserialize($worldName, $mapTag));
-                }
-            }else{
-                throw new \RuntimeException("The file is not in the NBT-CompoundTag format : $file");
-            }
+        //Load chunk loader data of all world
+        foreach($this->getServer()->getWorldManager()->getWorlds() as $key => $world){
+            $this->loadWorld($world);
         }
+
+        $this->getServer()->getPluginManager()->registerEvents($this, $this);
     }
 
     /**
@@ -110,90 +85,115 @@ class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader{
         //Unregister main command with subcommands
         $this->getServer()->getCommandMap()->unregister($this->getMainCommand());
 
-        //Save registered chunk map
-        $tag = CompoundTag::create();
-        foreach($this->dataMaps as $worldName => $chunkDataMap){
-            if(!empty($chunkDataMap->getAll())){
-                $tag->setTag($chunkDataMap->getWorldName(), $chunkDataMap->nbtSerialize());
-            }
-        }
-        $nbt = new BigEndianNbtSerializer();
-        try{
-            file_put_contents("{$this->getDataFolder()}data.dat", zlib_encode($nbt->write(new TreeRoot($tag)), ZLIB_ENCODING_GZIP));
-        }catch(\ErrorException $e){
-            $this->getLogger()->critical($this->getServer()->getLanguage()->translateString("pocketmine.data.saveError", [
-                "ChunkLoader-data",
-                $e->getMessage()
-            ]));
-            $this->getLogger()->logException($e);
+        //Save chunk loader data of all world
+        foreach($this->getServer()->getWorldManager()->getWorlds() as $key => $world){
+            $this->unloadWorld($world);
         }
     }
 
+    /** @param WorldLoadEvent $event */
+    public function onWorldLoadEvent(WorldLoadEvent $event) : void{
+        $this->loadWorld($event->getWorld());
+    }
+
+    /** @param WorldInitEvent $event */
+    public function onWorldInitEvent(WorldInitEvent $event) : void{
+        $this->loadWorld($event->getWorld());
+    }
+
+    /** @param WorldUnloadEvent $event */
+    public function onWorldUnloadEvent(WorldUnloadEvent $event) : void{
+        $this->unloadWorld($event->getWorld());
+    }
+
+    /** @param World $world */
+    public function loadWorld(World $world) : void{
+        $worldName = $world->getFolderName();
+        $listPath = "{$this->getServer()->getDataPath()}/worlds/$worldName/chunkloads.json";
+        if(!file_exists($listPath)){
+            $this->loadList[$worldName] = [];
+            return;
+        }
+
+        $content = file_get_contents($listPath);
+        if($content === false)
+            throw new \RuntimeException("Unable to load $worldName's chunkloads.json file");
+
+        $list = json_decode($content, true);
+        if(!is_array($list))
+            throw new \RuntimeException("Invalid data in $worldName's chunkloads.json file. Must be int array");
+
+        $list = array_values($list);
+        foreach($list as $key => $chunkHash){
+            if(!is_int($chunkHash))
+                throw new \RuntimeException("Invalid data in $worldName's chunkloads.json file. Must be int array");
+
+            World::getXZ($chunkHash, $chunkX, $chunkZ);
+            $this->registerChunk($world, $chunkX, $chunkZ);
+        }
+    }
+
+    /** @param World $world */
+    public function unloadWorld(World $world) : void{
+        $worldName = $world->getFolderName();
+        if(!isset($this->loadList[$worldName]))
+            return;
+
+        $listPath = "{$this->getServer()->getDataPath()}/worlds/$worldName/chunkloads.json";
+        file_put_contents($listPath, json_encode($this->loadList[$worldName], JSON_PRETTY_PRINT | JSON_BIGINT_AS_STRING));
+        unset($this->loadList[$worldName]);
+    }
+
     /**
-     * @param string $worldName
+     * @param World $world
      *
-     * @return ChunkDataMap
+     * @return int[]|null return chunk hash array, if empty return null.
      */
-    public function getChunkDataMap(string $worldName) : ChunkDataMap{
-        if(!isset($this->dataMaps[$worldName])){
-            $this->dataMaps[$worldName] = new ChunkDataMap($worldName);
-        }
-        return $this->dataMaps[$worldName];
+    public function getByWorld(World $world) : ?array{
+        return $this->loadList[$world->getFolderName()] ?? null;
     }
 
     /**
-     * @param ChunkDataMap $chunkDataMap
-     */
-    public function setChunkDataMap(ChunkDataMap $chunkDataMap) : void{
-        $worldName = $chunkDataMap->getWorldName();
-        $world = $this->getServer()->getWorldManager()->getWorldByName($worldName);
-        if($world === null){
-            $this->dataMaps[$worldName] = $chunkDataMap;
-        }else{
-            //Unregister chunk loaders from old chunk data map
-            if(isset($this->dataMaps[$worldName])){
-                foreach($this->dataMaps[$worldName]->getAll() as $key => $chunkHash){
-                    World::getXZ($chunkHash, $chunkX, $chunkZ);
-                    $world->unregisterChunkLoader($this, $chunkX, $chunkZ);
-                }
-            }
-            //Register chunk loaders from new chunk data map
-            $this->dataMaps[$worldName] = $chunkDataMap;
-            foreach($this->dataMaps[$worldName]->getAll() as $key => $chunkHash){
-                World::getXZ($chunkHash, $chunkX, $chunkZ);
-                $world->registerChunkLoader($this, $chunkX, $chunkZ);
-            }
-        }
-    }
-
-    /**
-     * @param int    $chunkX
-     * @param int    $chunkZ
-     * @param string $worldName
+     * @param World $world
+     * @param int   $chunkX
+     * @param int   $chunkZ
      *
      * @return bool true if the chunk registered successfully, false if not.
      */
-    public function registerChunk(int $chunkX, int $chunkZ, string $worldName) : bool{
-        $world = $this->getServer()->getWorldManager()->getWorldByName($worldName);
-        if($world !== null){
-            $world->registerChunkLoader($this, $chunkX, $chunkZ);
-        }
-        return $this->getChunkDataMap($worldName)->addChunk($chunkX, $chunkZ);
+    public function registerChunk(World $world, int $chunkX, int $chunkZ) : bool{
+        $worldName = $world->getFolderName();
+        if(!isset($this->loadList[$worldName]))
+            $this->loadList[$worldName] = [];
+
+        $chunkHash = World::chunkHash($chunkX, $chunkZ);
+        if(in_array($chunkHash, $this->loadList[$worldName]))
+            return false;
+
+        $world->registerChunkLoader($this, $chunkX, $chunkZ);
+        $this->loadList[$worldName][] = $chunkHash;
+        return true;
     }
 
     /**
-     * @param int    $chunkX
-     * @param int    $chunkZ
-     * @param string $worldName
+     * @param World $world
+     * @param int   $chunkX
+     * @param int   $chunkZ
      *
      * @return bool true if the chunk unregistered successfully, false if not.
      */
-    public function unregisterChunk(int $chunkX, int $chunkZ, string $worldName) : bool{
-        $world = $this->getServer()->getWorldManager()->getWorldByName($worldName);
-        if($world !== null){
-            $world->unregisterChunkLoader($this, $chunkX, $chunkZ);
-        }
-        return $this->getChunkDataMap($worldName)->removeChunk($chunkX, $chunkZ);
+    public function unregisterChunk(World $world, int $chunkX, int $chunkZ) : bool{
+        $worldName = $world->getFolderName();
+        if(!isset($this->loadList[$worldName]))
+            $this->loadList[$worldName] = [];
+
+        $chunkHash = World::chunkHash($chunkX, $chunkZ);
+        $key = array_search($chunkHash, $this->loadList[$worldName]);
+        if($key === false)
+            return false;
+
+        $world->unregisterChunkLoader($this, $chunkX, $chunkZ);
+        unset($this->loadList[$worldName][$key]);
+        return true;
     }
 
     /** @return float */
