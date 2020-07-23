@@ -26,6 +26,9 @@ command:
     unregister:
       name: "Unregister"
       aliases: ["u", "remove"]
+    clear:
+      name: "Clear"
+      aliases: ["c"]
     list:
       name: "List"
       aliases: ["l"]
@@ -41,4 +44,5 @@ permission:
     #메인 명령어의 권한과 동일합니다
     register: "op"
     unregister: "op"
+    clear: "op"
     list: "op"

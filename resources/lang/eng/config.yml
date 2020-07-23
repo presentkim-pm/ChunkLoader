@@ -26,6 +26,9 @@ command:
     unregister:
       name: "Unregister"
       aliases: ["u", "remove"]
+    clear:
+      name: "Clear"
+      aliases: ["c"]
     list:
       name: "List"
       aliases: ["l"]
@@ -41,4 +44,5 @@ permission:
     #Same as Permission of main command setting
     register: "op"
     unregister: "op"
+    clear: "op"
     list: "op"

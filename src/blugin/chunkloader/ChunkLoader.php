@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace blugin\chunkloader;
 
+use blugin\chunkloader\command\ClearSubcommand;
 use blugin\chunkloader\command\ListSubcommand;
 use blugin\chunkloader\command\RegisterSubcommand;
 use blugin\chunkloader\command\UnregisterSubcommand;
@@ -66,6 +67,7 @@ class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader, L
         $command = $this->getMainCommand();
         $command->registerSubcommand(new RegisterSubcommand($command));
         $command->registerSubcommand(new UnregisterSubcommand($command));
+        $command->registerSubcommand(new ClearSubcommand($command));
         $command->registerSubcommand(new ListSubcommand($command));
         $this->getServer()->getCommandMap()->register($this->getName(), $command);
 
