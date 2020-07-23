@@ -13,6 +13,10 @@ command:
   #You can change this to be what you want
   name: "chunkloader"
 
+  #Permission of main command
+  #You can change this to be what you want
+  permission: "op"
+
   #Aliases of main command
   #You can add, replace, or remove them as you like
   aliases: ["cl", "chunkload"]
@@ -23,26 +27,16 @@ command:
     register:
       name: "Register"
       aliases: ["r", "add"]
+      permission: "op"
     unregister:
       name: "Unregister"
       aliases: ["u", "remove"]
+      permission: "op"
     clear:
       name: "Clear"
       aliases: ["c"]
+      permission: "op"
     list:
       name: "List"
       aliases: ["l"]
-
-
-permission:
-  #Permission of main command
-  #You can change this to be what you want
-  main: "op"
-
-  children:
-    #Permission of subcommands
-    #Same as Permission of main command setting
-    register: "op"
-    unregister: "op"
-    clear: "op"
-    list: "op"
+      permission: "op"

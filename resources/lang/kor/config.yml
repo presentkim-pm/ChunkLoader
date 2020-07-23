@@ -13,6 +13,10 @@ command:
   #원하는대로 수정할 수 있습니다
   name: "chunkloader"
 
+  #메인 명령어의 권한
+  #원하는대로 수정할 수 있습니다
+  permission: "op"
+
   #메인 명령어의 별칭들
   #원하는대로 추가, 수정, 삭제할 수 있습니다
   aliases: ["cl", "chunkload"]
@@ -23,26 +27,16 @@ command:
     register:
       name: "Register"
       aliases: ["r", "add"]
+      permission: "op"
     unregister:
       name: "Unregister"
       aliases: ["u", "remove"]
+      permission: "op"
     clear:
       name: "Clear"
       aliases: ["c"]
+      permission: "op"
     list:
       name: "List"
       aliases: ["l"]
-
-
-permission:
-  #메인 명령어의 권한
-  #원하는대로 수정할 수 있습니다
-  main: "op"
-
-  children:
-    #하위 명령어들의 권한
-    #메인 명령어의 권한과 동일합니다
-    register: "op"
-    unregister: "op"
-    clear: "op"
-    list: "op"
+      permission: "op"
