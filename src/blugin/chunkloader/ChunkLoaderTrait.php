@@ -27,7 +27,15 @@ declare(strict_types=1);
 
 namespace blugin\chunkloader;
 
+use pocketmine\level\format\Chunk;
+use pocketmine\level\Level as World;
+use pocketmine\level\Position;
+use pocketmine\math\Vector3;
+
 trait ChunkLoaderTrait{
+    /** @var int */
+    private static $loaderId;
+
     /** @return float */
     public function getX(){
         return 0;
@@ -36,5 +44,51 @@ trait ChunkLoaderTrait{
     /** @return float */
     public function getZ(){
         return 0;
+    }
+
+    /** @return bool */
+    public function isLoaderActive() : bool{
+        return $this->isEnabled();
+    }
+
+    /** @param Chunk $chunk */
+    public function onChunkChanged(Chunk $chunk) : void{
+    }
+
+    /** @param Chunk $chunk */
+    public function onChunkLoaded(Chunk $chunk) : void{
+    }
+
+    /** @param Chunk $chunk */
+    public function onChunkUnloaded(Chunk $chunk) : void{
+    }
+
+    /**@param Chunk $chunk */
+    public function onChunkPopulated(Chunk $chunk) : void{
+    }
+
+    /** @param Vector3 $block */
+    public function onBlockChanged(Vector3 $block) : void{
+    }
+
+    /** @return int */
+    public function getLoaderId() : int{
+        if(self::$loaderId === null)
+            self::$loaderId = World::generateChunkLoaderId($this);
+        return self::$loaderId;
+    }
+
+    /**
+     * @return Position
+     */
+    public function getPosition() : Position{
+        return new Position(0, 0, 0, $this->getLevel());
+    }
+
+    /**
+     * @return World
+     */
+    public function getLevel() : World{
+        return $this->getServer()->getDefaultLevel();
     }
 }

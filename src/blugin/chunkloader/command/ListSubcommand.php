@@ -31,8 +31,8 @@ use blugin\chunkloader\ChunkLoader;
 use blugin\lib\command\Subcommand;
 use blugin\lib\command\validator\defaults\NumberArgumentValidator;
 use pocketmine\command\CommandSender;
+use pocketmine\level\Level as World;
 use pocketmine\Server;
-use pocketmine\world\World;
 
 class ListSubcommand extends Subcommand{
     use DefaultArgumentTrait;
