@@ -31,6 +31,7 @@ use blugin\chunkloader\ChunkLoader;
 use blugin\lib\command\Subcommand;
 use blugin\lib\command\validator\defaults\NumberArgumentValidator;
 use pocketmine\command\CommandSender;
+use pocketmine\Server;
 use pocketmine\world\World;
 
 class ListSubcommand extends Subcommand{
@@ -53,7 +54,7 @@ class ListSubcommand extends Subcommand{
         $plugin = $this->getMainCommand()->getOwningPlugin();
         $chunkHashs = $plugin->getByWorld($world);
         if(empty($chunkHashs)){
-            $sender->sendMessage($sender->getLanguage()->translateString("commands.generic.emptyWorld", [$world->getFolderName()]));
+            $sender->sendMessage(Server::getInstance()->getLanguage()->translateString("commands.generic.emptyWorld", [$world->getFolderName()]));
             return true;
         }
 
