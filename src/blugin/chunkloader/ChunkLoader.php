@@ -44,7 +44,7 @@ use pocketmine\world\ChunkLoader as PMChunkLoader;
 use pocketmine\world\World;
 
 class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader, Listener{
-    use SingletonTrait, LanguageTrait, SubcommandTrait;
+    use SingletonTrait, LanguageTrait, SubcommandTrait, ChunkLoaderTrait;
 
     /** @var int[][] world name => chunk hash[] */
     private $loadList = [];
@@ -197,15 +197,5 @@ class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader, L
         $world->unregisterChunkLoader($this, $chunkX, $chunkZ);
         unset($this->loadList[$worldName][$key]);
         return true;
-    }
-
-    /** @return float */
-    public function getX(){
-        return 0;
-    }
-
-    /** @return float */
-    public function getZ(){
-        return 0;
     }
 }
