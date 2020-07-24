@@ -1,8 +1,8 @@
 ---
 name: ChunkLoader
 main: blugin\chunkloader\ChunkLoader
-version: 2.2.3
-api: [4.0.0]
+version: 3.0.0
+api: [3.0.0]
 authors: ['Blugin-team', 'PresentKim']
 description: Load the chunk you want all the time!
 depend: [libPluginLang, libSubcommands]
