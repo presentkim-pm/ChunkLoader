@@ -34,17 +34,19 @@ use blugin\chunkloader\command\UnregisterSubcommand;
 use blugin\lib\command\SubcommandTrait;
 use blugin\lib\lang\LanguageHolder;
 use blugin\lib\lang\LanguageTrait;
+use pocketmine\event\level\LevelInitEvent as WorldInitEvent;
+use pocketmine\event\level\LevelLoadEvent as WorldLoadEvent;
+use pocketmine\event\level\LevelUnloadEvent as WorldUnloadEvent;
 use pocketmine\event\Listener;
-use pocketmine\event\world\WorldInitEvent;
-use pocketmine\event\world\WorldLoadEvent;
-use pocketmine\event\world\WorldUnloadEvent;
+use pocketmine\level\ChunkLoader as PMChunkLoader;
+use pocketmine\level\Level as World;
 use pocketmine\plugin\PluginBase;
-use pocketmine\utils\SingletonTrait;
-use pocketmine\world\ChunkLoader as PMChunkLoader;
-use pocketmine\world\World;
 
 class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader, Listener{
-    use SingletonTrait, LanguageTrait, SubcommandTrait, ChunkLoaderTrait;
+    use LanguageTrait, SubcommandTrait, ChunkLoaderTrait;
+
+    /** @var self|null */
+    private static $instance = null;
 
     /** @var int[][] world name => chunk hash[] */
     private $loadList = [];
@@ -53,7 +55,7 @@ class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader, L
      * Called when the plugin is loaded, before calling onEnable()
      */
     public function onLoad() : void{
-        self::setInstance($this);
+        self::$instance = $this;
 
         $this->loadLanguage($this->getConfig()->getNested("settings.language"));
         $this->getMainCommand();
@@ -73,7 +75,7 @@ class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader, L
         $this->getServer()->getCommandMap()->register($this->getName(), $command);
 
         //Load chunk loader data of all world
-        foreach($this->getServer()->getWorldManager()->getWorlds() as $key => $world){
+        foreach($this->getServer()->getLevels() as $key => $world){
             $this->loadWorld($world);
         }
 
@@ -89,24 +91,24 @@ class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader, L
         $this->getServer()->getCommandMap()->unregister($this->getMainCommand());
 
         //Save chunk loader data of all world
-        foreach($this->getServer()->getWorldManager()->getWorlds() as $key => $world){
+        foreach($this->getServer()->getLevels() as $key => $world){
             $this->unloadWorld($world);
         }
     }
 
     /** @param WorldLoadEvent $event */
     public function onWorldLoadEvent(WorldLoadEvent $event) : void{
-        $this->loadWorld($event->getWorld());
+        $this->loadWorld($event->getLevel());
     }
 
     /** @param WorldInitEvent $event */
     public function onWorldInitEvent(WorldInitEvent $event) : void{
-        $this->loadWorld($event->getWorld());
+        $this->loadWorld($event->getLevel());
     }
 
     /** @param WorldUnloadEvent $event */
     public function onWorldUnloadEvent(WorldUnloadEvent $event) : void{
-        $this->unloadWorld($event->getWorld());
+        $this->unloadWorld($event->getLevel());
     }
 
     /** @param World $world */
@@ -197,5 +199,10 @@ class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader, L
         $world->unregisterChunkLoader($this, $chunkX, $chunkZ);
         unset($this->loadList[$worldName][$key]);
         return true;
+    }
+
+    /** @return ChunkLoader|null */
+    public static function getInstance() : ?self{
+        return self::$instance;
     }
 }

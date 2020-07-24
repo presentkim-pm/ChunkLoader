@@ -30,8 +30,8 @@ namespace blugin\chunkloader\command;
 use blugin\chunkloader\ChunkLoader;
 use blugin\lib\command\Subcommand;
 use pocketmine\command\CommandSender;
+use pocketmine\level\Level as World;
 use pocketmine\Server;
-use pocketmine\world\World;
 
 class ClearSubcommand extends Subcommand{
     use DefaultArgumentTrait;

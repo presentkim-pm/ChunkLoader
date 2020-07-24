@@ -31,8 +31,8 @@ use blugin\lib\command\exception\defaults\ArgumentLackException;
 use blugin\lib\command\validator\defaults\NumberArgumentValidator;
 use blugin\lib\command\validator\defaults\WorldArgumentValidator;
 use pocketmine\command\CommandSender;
-use pocketmine\player\Player;
-use pocketmine\world\World;
+use pocketmine\level\Level as World;
+use pocketmine\Player;
 
 trait DefaultArgumentTrait{
     /**
@@ -77,7 +77,7 @@ trait DefaultArgumentTrait{
         if($argument !== null){
             return WorldArgumentValidator::validate($argument);
         }elseif($sender instanceof Player){
-            return $sender->getWorld();
+            return $sender->getLevel();
         }else{
             throw new ArgumentLackException();
         }
