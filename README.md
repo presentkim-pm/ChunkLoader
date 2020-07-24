@@ -6,28 +6,32 @@ __A plugin for [PMMP](https://pmmp.io) :: Load the chunk you want all the time!_
 [![download](https://img.shields.io/github/downloads/Blugin/ChunkLoader-PMMP/total.svg?label=Download)](../../releases/latest)
   
 ## What is this?   
-Keeps the registered chunk always loaded
+This plugin supports the feature to set a specific chunk to always be loaded by the user  
+The chunk of your choice always remains loaded  
   
   
 ## Features  
-- [x] Register chunk to always loaded  
-- [x] Save plugin data in NBT format  
+- [x] The chunk of your choice always remains loaded  
+- [x] Chunk list saved as `chunkloads.json` in each world folder  
 - [x] Support configurable things  
+  - Config file : `config.yml`
+    - [x] Select language
+    - [x] Configure the command (name/aliases/permissions)
+    - [x] Configure the subcommands (name/aliases/permissions)
+  - Language file : `lang/{SELECTED LANG}.ini`
+    - [x] Configure the messages  
+      - in `lang/{SELECTED LANG}.ini` file  
+    - [x] Configure the command (include subcommands)  
+      - in `config.yml` file  
+    - [x] Configure the permission of command  
+      - in `config.yml` file  
   
-  
-### Configurable things  
-- [x] Configure the language for messages  
-  - [x] in `lang/{SELECTED LANG}.ini` file  
-  - [x] Select language in `config.yml` file  
-- [x] Configure the command (include subcommands)  
-  - [x] in `config.yml` file  
-- [x] Configure the permission of command  
-  - [x] in `config.yml` file  
-  
-The configuration files is created when the plugin is enabled.  
-The configuration files is loaded  when the plugin is enabled.  
-  
-  
+## Required dependency plugins
+- [**Blugin/libPluginLang-PMMP**](https://github.com/Blugin/libPluginLang-PMMP) 
+ - Download : 
+- [**Blugin/libSubcommands-PMMP**](https://github.com/Blugin/libSubcommands-PMMP)
+
+
 ## Command  
 Main command : `/chunkloader <Register | Unregister | Clear | List>`  
   
