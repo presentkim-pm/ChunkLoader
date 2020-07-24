@@ -39,12 +39,14 @@ use pocketmine\event\world\WorldInitEvent;
 use pocketmine\event\world\WorldLoadEvent;
 use pocketmine\event\world\WorldUnloadEvent;
 use pocketmine\plugin\PluginBase;
-use pocketmine\utils\SingletonTrait;
 use pocketmine\world\ChunkLoader as PMChunkLoader;
 use pocketmine\world\World;
 
 class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader, Listener{
-    use SingletonTrait, LanguageTrait, SubcommandTrait, ChunkLoaderTrait;
+    use LanguageTrait, SubcommandTrait, ChunkLoaderTrait;
+
+    /** @var self|null */
+    private static $instance = null;
 
     /** @var int[][] world name => chunk hash[] */
     private $loadList = [];
@@ -53,7 +55,7 @@ class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader, L
      * Called when the plugin is loaded, before calling onEnable()
      */
     public function onLoad() : void{
-        self::setInstance($this);
+        self::$instance = $this;
 
         $this->loadLanguage($this->getConfig()->getNested("settings.language"));
         $this->getMainCommand();
@@ -197,5 +199,10 @@ class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader, L
         $world->unregisterChunkLoader($this, $chunkX, $chunkZ);
         unset($this->loadList[$worldName][$key]);
         return true;
+    }
+
+    /** @return ChunkLoader|null */
+    public static function getInstance() : ?self{
+        return self::$instance;
     }
 }
