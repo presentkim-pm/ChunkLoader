@@ -54,7 +54,7 @@ class ListSubcommand extends Subcommand{
         $plugin = $this->getMainCommand()->getOwningPlugin();
         $chunkHashs = $plugin->getByWorld($world);
         if(empty($chunkHashs)){
-            $sender->sendMessage(Server::getInstance()->getLanguage()->translateString("commands.generic.emptyWorld", [$world->getFolderName()]));
+            $sender->sendMessage($plugin->getTranslator()->translateTo("commands.generic.emptyWorld", [$world->getFolderName()], $sender));
             return true;
         }
 

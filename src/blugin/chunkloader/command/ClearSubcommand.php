@@ -30,7 +30,6 @@ namespace blugin\chunkloader\command;
 use blugin\chunkloader\ChunkLoader;
 use blugin\lib\command\Subcommand;
 use pocketmine\command\CommandSender;
-use pocketmine\Server;
 use pocketmine\world\World;
 
 class ClearSubcommand extends Subcommand{
@@ -53,7 +52,7 @@ class ClearSubcommand extends Subcommand{
         $plugin = $this->getMainCommand()->getOwningPlugin();
         $chunkHashs = $plugin->getByWorld($world);
         if(empty($chunkHashs)){
-            $sender->sendMessage(Server::getInstance()->getLanguage()->translateString("commands.generic.emptyWorld", [$world->getFolderName()]));
+            $sender->sendMessage($plugin->getTranslator()->translateTo("commands.generic.emptyWorld", [$world->getFolderName()], $sender));
             return true;
         }
 

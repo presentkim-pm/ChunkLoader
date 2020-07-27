@@ -32,8 +32,9 @@ use blugin\chunkloader\command\ListSubcommand;
 use blugin\chunkloader\command\RegisterSubcommand;
 use blugin\chunkloader\command\UnregisterSubcommand;
 use blugin\lib\command\SubcommandTrait;
-use blugin\lib\lang\LanguageHolder;
-use blugin\lib\lang\LanguageTrait;
+use blugin\lib\translator\MultilingualConfigTrait;
+use blugin\lib\translator\TranslatorHolder;
+use blugin\lib\translator\TranslatorHolderTrait;
 use pocketmine\event\Listener;
 use pocketmine\event\world\WorldInitEvent;
 use pocketmine\event\world\WorldLoadEvent;
@@ -43,8 +44,8 @@ use pocketmine\utils\SingletonTrait;
 use pocketmine\world\ChunkLoader as PMChunkLoader;
 use pocketmine\world\World;
 
-class ChunkLoader extends PluginBase implements LanguageHolder, PMChunkLoader, Listener{
-    use SingletonTrait, LanguageTrait, SubcommandTrait, ChunkLoaderTrait;
+class ChunkLoader extends PluginBase implements TranslatorHolder, PMChunkLoader, Listener{
+    use SingletonTrait, TranslatorHolderTrait, MultilingualConfigTrait, SubcommandTrait, ChunkLoaderTrait;
 
     /** @var int[][] world name => chunk hash[] */
     private $loadList = [];
